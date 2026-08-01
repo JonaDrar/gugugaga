@@ -28,8 +28,9 @@ hija del dueño; no comercial).
 - **Personaje por capas (dress-up)**: niña base + cuerpo + capucha + gorro, todo
   intercambiable y **combinable** (ver *Arquitectura*).
 - **Escenarios** intercambiables (cielo, cuarto, playa, jardín) hechos solo con CSS.
-- **Mascotas** 🐾: un amigo que se pasea por la escena y reacciona a todo. Sin
-  barras propias — es compañía, no otra obligación. Se ganan con ⭐.
+- **Mascotas** 🐾: hasta **cuatro amigos a la vez** paseándose por la escena y
+  reaccionando a todo, con 4 ánimos ilustrados cada uno. Sin barras propias — son
+  compañía, no otra obligación. Se ganan con ⭐.
 - **Modo foto** 📸: postal tipo polaroid con stickers, guardada en un álbum local.
 - **Voces grabadas** 🎤: la nena graba su propia voz para cada emoción.
 - **Sonidos** sintetizados (WebAudio, sin archivos) + botón de silencio.
@@ -90,9 +91,11 @@ gugugaga/
 │   └── icons/            # favicon.svg + íconos PWA generados
 ├── build.py              # inlinea css+js y EMBEBE las imágenes → 1 archivo para el link
 └── tools/
+    ├── gen_art.py        # GENERA las piezas con la API de OpenAI (prompts + referencias)
+    ├── fit_anchor.py     # calcula el anchor a partir de dónde querés que caiga la pieza
     ├── preview.py        # compositor que replica EXACTO el juego (para calibrar anchors)
     ├── make_icons.py     # genera los íconos PWA desde las mismas capas del juego
-    └── clean_green.py    # quita fondo verde de piezas generadas por IA
+    └── clean_green.py    # quita fondo verde (sólo para arte hecho por chat, no por API)
 ```
 
 ---
@@ -491,23 +494,19 @@ for f in js/*.js; do node --check "$f"; done
 
 - [x] **Caras de la niña**: `girl-happy.png`, `girl-sleep.png`, `girl-sad.png` ✅ (2026-07-28).
 
-**Contenido de dress-up** — ✅ **13 piezas nuevas ya registradas en el código**
-(2026-07-31): 3 cabezas, 4 cuerpos, 3 gorros y 3 collares. Sólo **falta el PNG**
-de cada una; el juego las muestra solas apenas el archivo exista.
-👉 **Checklist con nombre de archivo y prompt: `tools/art-prompts.md` §0.**
-
-- [ ] `head-gato` · `head-dino` · `head-oso` → slot `head`.
-- [ ] `body-vestido` · `body-pijama` · `body-dino` · `body-overol` → slot `body`.
-- [ ] `hat-gorro` · `hat-corona` · `hat-flor` → slot `hat`.
-- [ ] `necklace-corazon` · `necklace-perla` · `necklace-estrella` → slot `accessory`.
-      ⚠️ Su anchor (`A_NECK`) es el **único sin calibrar**: cuando llegue el
-      primer collar, correr `tools/preview.py` y ajustarlo.
+**Contenido de dress-up** — ✅ **COMPLETO** (2026-08-01). No falta ninguna pieza:
+6 cabezas, 8 cuerpos, 4 gorros y 3 collares, todas con su PNG. Se generaron con
+`tools/gen_art.py` (ver *Generar arte*).
 
 **Ideas futuras pedidas por el dueño:**
-- [x] **Collares** 📿 ✅ registrados (falta el arte, ver arriba).
+- [x] **Collares** 📿 ✅ (2026-07-31).
 - [x] **Mascotas** 🐾 ✅ (2026-07-31) — `js/buddies.js`, ver *Mascotas*.
-- [ ] Ilustraciones de las mascotas (4 ánimos × 4 mascotas, ninguna obligatoria;
-      hoy son emoji). Prompts en `tools/art-prompts.md` §2.6.
+- [x] Ilustraciones de las mascotas ✅ (2026-08-01) — las 16 (4 ánimos × 4).
+- [x] **Traje de diva vocaloid** ✅ (2026-08-01) — peluca + outfit, mezclables
+      con el resto. Se puede por la Piapro Character License de Crypton, que
+      autoriza obras derivadas sin fines comerciales hechas por particulares.
+- [ ] Fondos de escenario de verdad (hoy son gradientes CSS). Prompt en
+      `tools/art-prompts.md` §2.5; costo estimado ~USD 0.05 cada uno.
 - [x] Grabaciones reales de voz ✅ (2026-07-28) — ver *Voces*.
 - [x] **Hosting estático propio** ✅ (2026-07-31) — GitHub Pages en
       https://jonadrar.github.io/gugugaga/ ; habilita micrófono y notificaciones.
