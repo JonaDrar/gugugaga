@@ -7,3 +7,6 @@ __pycache__/
 assets/art/_preview.png
 
 tools/.gen_art_spend.json
+
+# Referencias de arte que subió el dueño (no son parte del juego)
+miku-referencias/

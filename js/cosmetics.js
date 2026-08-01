@@ -86,6 +86,10 @@
       { id: "bunny", label: "Conejo", preview: "🐰", love: 35, img: "assets/art/head-bunny.png", anchor: { top: 0, left: 21.8, width: 56 } },
       { id: "dino", label: "Dino", preview: "🦕", love: 50, img: "assets/art/head-dino.png", anchor: A_HEAD },
       { id: "oso", label: "Osito", preview: "🐻", love: 65, img: "assets/art/head-oso.png", anchor: A_HEAD },
+      // Peluca de diva vocaloid. Usa el A_HEAD compartido: el flequillo cae en
+      // las cejas sin taparle los ojos, que es lo que importa porque las
+      // expresiones viven en la capa de la niña, debajo de todo esto.
+      { id: "miku", label: "Diva", preview: "🎤", love: 60, img: "assets/art/head-miku.png", anchor: A_HEAD },
     ],
     // Los cuerpos de animal están costeados JUSTO por encima de su capucha
     // (gato 20→30, conejo 35→45, dino 50→55) para que el disfraz se complete
@@ -102,6 +106,7 @@
       { id: "conejo", label: "Conejo", preview: "🐰", love: 45, img: "assets/art/body-conejo.png", anchor: A_BODY },
       { id: "dino", label: "Dino", preview: "🦕", love: 55, img: "assets/art/body-dino.png", anchor: A_BODY },
       { id: "overol", label: "Overol", preview: "👖", love: 70, img: "assets/art/body-overol.png", anchor: A_BODY },
+      { id: "miku", label: "Diva", preview: "🎤", love: 70, img: "assets/art/body-miku.png", anchor: A_BODY },
     ],
     hat: [
       { id: "none", label: "Ninguno", preview: "🚫" },

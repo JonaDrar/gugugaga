@@ -195,6 +195,60 @@ def _recipes():
         r[name] = {"refs": ["head-penguin.png"],
                    "prompt": _HEAD.format(animal=animal, color=color, ears=ears, face=face)}
 
+    # --- traje de diva vocaloid (Miku) ---------------------------------------
+    # Se genera con las referencias que dejó el dueño en miku-referencias/, y el
+    # prompt describe el DISEÑO en vez de nombrar al personaje: los modelos de
+    # imagen suelen rechazar los nombres propios, y describiéndolo sale igual.
+    #
+    # Las coletas van cortas a propósito. Las originales llegan a los tobillos,
+    # pero la capa `head` se escala por el ANCHO de su cuadro: coletas largas
+    # obligarían a agrandar el cuadro y con él el hueco de la cara, que dejaría
+    # de calzar con las expresiones. Cortas y gorditas es además como se ven en
+    # las figuras chibi, así que no se pierde nada.
+    r["head-miku"] = {
+        "refs": ["head-penguin.png", "../../miku-referencias/e3b404m7t5.png.webp"],
+        "prompt": (
+            "Using the FIRST attached image as the reference for FRAMING and the SECOND "
+            "attached image as the reference for the CHARACTER DESIGN, generate a costume "
+            "WIG for a chibi figurine. "
+            "From the FIRST image keep: the SAME round face opening in the SAME position "
+            "and the SAME size, the same overall size in frame, the same camera framing, "
+            "the same 3D Nendoroid figurine style and the same soft frontal lighting. "
+            "The design: bright turquoise/aqua hair. The wig must COMPLETELY COVER the "
+            "head like a helmet — a full solid cap of turquoise hair with a straight "
+            "turquoise fringe coming down LOW over the forehead, and turquoise side hair "
+            "framing the face all the way down past the jaw, so that NO other hair colour "
+            "could ever show underneath it. Two thick twintails, one on each side, each "
+            "tied at the top with a black and hot-pink band; plus a black futuristic "
+            "headset over the ears with a hot-pink stripe and a small microphone arm "
+            "curving toward the mouth. "
+            "IMPORTANT: keep the twintails SHORT and chunky and FULLY inside the frame — "
+            "do not let them touch or cross the edges of the image, and do not make them "
+            "long. Do not change the size or position of the face opening. "
+            "No head inside the wig, no face, no character, no body. "
+            "Isolated object, centered, transparent background, no shadow, no text."
+        ),
+    }
+    r["body-miku"] = {
+        "refs": ["body-penguin.png", "../../miku-referencias/images-14.jpeg"],
+        "prompt": (
+            "Using the FIRST attached image as the reference for SHAPE and the SECOND "
+            "attached image as the reference for the OUTFIT DESIGN, generate a costume "
+            "BODY (torso, arms and legs, NO head) for a chibi figurine. "
+            "From the FIRST image keep: the EXACT same silhouette proportions, the same "
+            "size, the same camera framing, the same neck opening position and size, the "
+            "same 3D Nendoroid figurine style and the same soft frontal lighting. "
+            "The outfit: a light grey sleeveless top with a turquoise collar and a long "
+            "turquoise necktie down the chest, black detached sleeves on both arms with a "
+            "turquoise band at the top, a short black pleated skirt with a thin turquoise "
+            "trim at the hem, and tall black thigh-high boots with turquoise trim. "
+            "Chibi proportions: short and chunky limbs, not slender. "
+            "Do not change the size or position of the neck opening. No head, no face, "
+            "no hair, no character. Isolated object, centered, transparent background, "
+            "no shadow, no text."
+        ),
+    }
+
     for name, det in [
         ("hat-gorro", "chunky knitted winter beanie in mustard yellow with a big white "
          "fluffy pom-pom on top and a folded ribbed brim"),
@@ -298,8 +352,13 @@ def generate(name, model, quality, size, out_path, key, timeout=300, clean_alpha
         # alta fidelidad siempre, así que el parámetro le sobra (y da error 400).
         if model in FIDELITY_MODELS:
             data["input_fidelity"] = "high"
+        # El tipo MIME tiene que ser el real: las referencias del dueño pueden
+        # venir en .webp o .jpeg, y mandarlas rotuladas como PNG da un 400.
+        mimes = {".png": "image/png", ".jpg": "image/jpeg", ".jpeg": "image/jpeg",
+                 ".webp": "image/webp"}
         for f in refs:
-            files.append(("image[]", (f.name, f.open("rb"), "image/png")))
+            mime = mimes.get(f.suffix.lower(), "image/png")
+            files.append(("image[]", (f.name, f.open("rb"), mime)))
         url = API
     else:
         url = GEN_API

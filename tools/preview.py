@@ -46,6 +46,7 @@ CATALOG = {
         "conejo": ("body-conejo.png", A_BODY),
         "dino": ("body-dino.png", A_BODY),
         "overol": ("body-overol.png", A_BODY),
+        "miku": ("body-miku.png", A_BODY),
     },
     "head": {
         "penguin": ("head-penguin.png", A_HEAD),
@@ -53,6 +54,7 @@ CATALOG = {
         "bunny": ("head-bunny.png", {"top": 0, "left": 21.8, "width": 56}),
         "dino": ("head-dino.png", A_HEAD),
         "oso": ("head-oso.png", A_HEAD),
+        "miku": ("head-miku.png", A_HEAD),
     },
     "accessory": {
         "corazon": ("necklace-corazon.png", A_NECK),
