@@ -35,6 +35,7 @@ A_BODY = {"top": 33, "left": 12, "width": 76}
 A_HAT = {"top": -19, "left": 33, "width": 36}
 # Cada gorro tiene su forma: ver el comentario en js/cosmetics.js.
 A_CORONA = {"top": -8, "left": 31.8, "width": 39}
+A_FLOR = {"top": -8.2, "left": 33.6, "width": 32.9}
 # Cada collar tiene el suyo: ver el comentario en js/cosmetics.js.
 
 CATALOG = {
@@ -65,7 +66,7 @@ CATALOG = {
         "party": ("hat-party.png", A_HAT),
         "gorro": ("hat-gorro.png", A_HAT),
         "corona": ("hat-corona.png", A_CORONA),
-        "flor": ("hat-flor.png", A_HAT),
+        "flor": ("hat-flor.png", A_FLOR),
     },
 }
 BASE = "girl-base.png"  # the expression layer (girl face)

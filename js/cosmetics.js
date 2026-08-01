@@ -74,6 +74,10 @@
   // chiquita y flotando arriba de la cabeza. Este se calculó para que el borde
   // inferior caiga donde apoya el de fiesta (15.9% del stage).
   const A_CORONA = { top: -8, left: 31.8, width: 39 };
+  // La florcita es todavía más baja y ancha que la corona (40% de alto contra
+  // el 94% del cono de fiesta). Calculado con
+  // `tools/fit_anchor.py hat-flor.png --bottom 15.9 --width 30`.
+  const A_FLOR = { top: -8.2, left: 33.6, width: 32.9 };
   // Los collares TAMPOCO comparten anchor, por la misma razón que los gorros:
   // se generan sueltos y cada PNG deja un margen transparente distinto (uno
   // arranca al 15.7% de su cuadro y otro al 8.6%), así que con un anchor común
@@ -117,7 +121,7 @@
       { id: "party", label: "Fiesta", preview: "🎉", love: 15, img: "assets/art/hat-party.png", anchor: A_HAT },
       { id: "gorro", label: "Gorrito", preview: "🧶", love: 30, img: "assets/art/hat-gorro.png", anchor: A_HAT },
       { id: "corona", label: "Corona", preview: "👑", love: 45, img: "assets/art/hat-corona.png", anchor: A_CORONA },
-      { id: "flor", label: "Florcita", preview: "🌸", love: 60, img: "assets/art/hat-flor.png", anchor: A_HAT },
+      { id: "flor", label: "Florcita", preview: "🌸", love: 60, img: "assets/art/hat-flor.png", anchor: A_FLOR },
     ],
     accessory: [
       { id: "none", label: "Ninguno", preview: "🚫" },
