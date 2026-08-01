@@ -357,7 +357,9 @@ body {
   font-weight: 800;
   font-size: clamp(15px, 3.6vw, 20px);
   box-shadow: 0 6px 0 rgba(0,0,0,.06);
-  z-index: 3;
+  /* por encima de la capa de mascotas (z-index 3): lo que dice Gugugaga nunca
+     se puede quedar tapado por un amigo que le pasa por delante */
+  z-index: 8;
   transition: opacity .25s ease, transform .25s ease;
 }
 .speech::after {
@@ -496,6 +498,17 @@ body.night {
   cursor: pointer;
 }
 .citem.sel { border-color: var(--yellow-d); background: #fff6d9; }
+/* Tilde de las mascotas: ahí se prenden y apagan varias a la vez, así que hace
+   falta una señal de "está puesta" más explícita que el borde amarillo, que en
+   el resto del clóset significa "es la única elegida". */
+.citem { position: relative; }
+.ctick {
+  position: absolute;
+  top: 4px; right: 6px;
+  font-size: 15px;
+  color: var(--yellow-d);
+  line-height: 1;
+}
 .citem.locked { opacity: .6; background: #eceaf2; }
 .citem.locked .cname { font-size: 12px; }
 .citem .cico { font-size: 30px; line-height: 1; }
@@ -819,16 +832,26 @@ body.night {
    `bottom` la deja parada a la altura de los pies de Gugugaga: el cuadrado del
    personaje queda centrado en un stage 200/240, así que el borde inferior del
    arte está a ~8% del piso del stage y los pies dibujados, otro ~6% más arriba. */
+/* Las mascotas van POR DELANTE de Gugugaga (#char está en z-index 2).
+   Antes iban por detrás para que no le taparan la cara al cruzar, pero los
+   trajes son anchos y se la comían entera: quedaban intocables justo cuando la
+   nena quería acariciarlas. Que se pueda tocar gana; el cruce por delante dura
+   un par de segundos. La capa no recibe clicks (pointer-events: none) para no
+   robarle los toques al personaje: sólo los reciben las mascotas mismas. */
+.buddy-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+}
+
 .buddy {
   position: absolute;
   bottom: 13%;
   left: 78%;
-  /* Detrás de Gugugaga (#char va en z-index 2): al pasearse cruza el centro de
-     la escena, y por delante le taparía la cara justo cuando la nena la mira.
-     Por detrás, el mismo paseo se lee natural. */
-  z-index: 1;
   transition: left 2.4s cubic-bezier(.45, 0, .25, 1);
   cursor: pointer;
+  pointer-events: auto;
   /* el emoji se escala con el stage para que se vea igual en iPad y en celular */
   font-size: min(11vw, 46px);
   line-height: 1;

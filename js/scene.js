@@ -149,24 +149,29 @@
         safe(im, x0 + (left / 100) * S, y0 + (top / 100) * S, (w / 100) * S, (w / 100) * S);
       });
 
-      // La mascota, parada al lado de ella sobre la misma línea de piso.
+      // Las mascotas, paradas al lado de ella sobre la misma línea de piso.
       // Los pies dibujados están al 93% del cuadrado del personaje (el arte deja
-      // aire abajo), así que ese es el "suelo" al que hay que apoyarla.
-      const buddy = charEls.buddy;
-      if (buddy) {
-        const feet = y0 + S * 0.93;
+      // aire abajo), así que ese es el "suelo" al que hay que apoyarlas.
+      //
+      // Se reparten a los dos costados alternando, para que la foto quede
+      // equilibrada y ninguna le tape la cara aunque tenga las cuatro puestas.
+      const buddies = charEls.buddies || [];
+      const feet = y0 + S * 0.93;
+      const SPOTS = [0.82, 0.16, 0.94, 0.05];
+      buddies.slice(0, SPOTS.length).forEach((buddy, i) => {
+        const cx = SPOTS[i] * W;
         // Si hay ilustración se usa la MISMA <img> que está en pantalla, así la
         // foto sale con el ánimo que tenía en ese momento.
-        const bi = charEls.buddyImg;
+        const bi = (charEls.buddyImgs || [])[i];
         if (bi && bi.complete && bi.naturalWidth) {
-          const bs = W * 0.19;
-          try { ctx.drawImage(bi, W * 0.80 - bs / 2, feet - bs, bs, bs); } catch (e) { /* ignore */ }
+          const bs = W * 0.17;
+          try { ctx.drawImage(bi, cx - bs / 2, feet - bs, bs, bs); } catch (e) { /* ignore */ }
         } else {
-          const fs = W * 0.13;
+          const fs = W * 0.12;
           ctx.font = fs + "px serif";
-          ctx.fillText(buddy.emoji, W * 0.82, feet - fs / 2);
+          ctx.fillText(buddy.emoji, cx, feet - fs / 2);
         }
-      }
+      });
 
       (stickers || []).forEach((st) => {
         ctx.font = st.size + "px serif";

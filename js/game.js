@@ -34,10 +34,7 @@
     scenes: $("scenes"),
     sceneBtn: $("sceneBtn"),
     sceneItems: $("sceneItems"),
-    buddy: $("buddy"),
-    buddyArt: $("buddyArt"),
-    buddyZzz: $("buddyZzz"),
-    buddySpeech: $("buddySpeech"),
+    buddyLayer: $("buddyLayer"),
     buddyBtn: $("buddyBtn"),
     buddies: $("buddies"),
     buddyItems: $("buddyItems"),
@@ -204,7 +201,7 @@
     el.sickBadge.classList.toggle("hidden", !ill);
     if (ill) el.sickBadge.textContent = ill.emoji;
 
-    Buddy.watch();
+    Buddies.watch();
   }
 
   // ---------- speech + fx + toast ----------
@@ -277,7 +274,7 @@
     if (ev.health) applyHealthEvent(ev.health, 1800);
     // La mascota comenta lo que acaba de pasar, un toque después que ella para
     // que se lean como dos personajes y no como un solo cartel.
-    if (BUDDY_REACTS[name]) setTimeout(() => Buddy.react(BUDDY_REACTS[name]), 900);
+    if (BUDDY_REACTS[name]) setTimeout(() => Buddies.react(BUDDY_REACTS[name]), 900);
     GG.Save.save(state);
     render();
     nextIdleChatter = Date.now() + 8000;
@@ -448,49 +445,100 @@
   }
   el.albumBtn.addEventListener("click", openAlbum);
 
-  // ---------- mascota 🐾 ----------
-  // Se pasea sola, reacciona a lo que pasa y se deja acariciar. No tiene barras
-  // (ver js/buddies.js): existir y responder es todo lo que tiene que hacer.
-  const Buddy = (() => {
-    let animTimer = null;
-    let speechTimer = null;
+  // ---------- mascotas 🐾 ----------
+  // Se pasean solas, reaccionan a lo que pasa y se dejan acariciar. No tienen
+  // barras (ver js/buddies.js): existir y responder es todo lo que hacen.
+  //
+  // Son VARIAS a la vez: el estado guarda una lista, no una elegida. Cada una
+  // tiene su propio elemento, su propio paseo y su propio ánimo, y se arman y
+  // desarman solas cuando cambia la selección.
+  const Buddies = (() => {
+    // id -> { root, art, zzz, speech, moodHold, lastX, x, animT, sayT }
+    const live = new Map();
     let walkTimer = null;
-    let lastX = 78;
 
-    // Se pasea a los costados dejando libre la franja donde está parada
-    // Gugugaga. Los rangos están calculados para que la mascota nunca se DETENGA
-    // detrás de ella: el dibujo de la nena ocupa ~29–76% del stage y la mascota
-    // ~32% de ancho, así que su borde tiene que quedar fuera de esa franja.
-    // Cruzarla al caminar sí está permitido (pasa por detrás, z-index 1).
-    function pickX() {
-      const left = Math.random() < 0.5;
-      return left ? -26 + Math.random() * 24 : 76 + Math.random() * 24;
+    // Franjas laterales: no se DETIENEN encima de Gugugaga (ocupa ~29-76% del
+    // stage). Cruzarla al caminar sí, y ahora pasan por delante.
+    function bands() {
+      return [[-26, -2], [76, 100]];
+    }
+    // Elige una posición libre: reintenta hasta separarse de las demás, si no
+    // dos amigas se paran una encima de la otra y parecen una sola.
+    function pickX(id) {
+      const others = [...live.entries()].filter(([k]) => k !== id).map(([, v]) => v.x);
+      let best = null, bestGap = -1;
+      for (let i = 0; i < 10; i++) {
+        const [lo, hi] = GG.pick(bands());
+        const x = lo + Math.random() * (hi - lo);
+        const gap = others.length ? Math.min(...others.map((o) => Math.abs(o - x))) : 99;
+        if (gap > bestGap) { bestGap = gap; best = x; }
+        if (gap >= 20) break;
+      }
+      return best;
     }
 
-    function place(x) {
-      el.buddyArt.style.setProperty("--flip", x < lastX ? -1 : 1);
-      lastX = x;
-      el.buddy.style.left = x + "%";
+    function place(b, x) {
+      b.art.style.setProperty("--flip", x < b.x ? -1 : 1);
+      b.x = x;
+      b.root.style.left = x + "%";
     }
 
-    function anim(name) {
-      clearTimeout(animTimer);
-      el.buddy.classList.remove("hop", "wiggle", "worry");
+    function moodNow(b) {
+      if (GG.buddyResting(state)) return "dormido";
+      if (b.moodHold && Date.now() < b.moodHold.until) return b.moodHold.name;
+      b.moodHold = null;
+      if (GG.illnessOf(state)) return "triste";
+      if (state.stats.cleanliness < 35) return "triste";
+      return "normal";
+    }
+
+    // Crea el DOM de una mascota. Se hace acá y no en index.html porque la
+    // cantidad depende de cuántas eligió.
+    function build(def) {
+      const root = document.createElement("div");
+      root.className = "buddy";
+      root.dataset.buddy = def.id;
+      const speech = document.createElement("div");
+      speech.className = "buddy-speech hidden";
+      const zzz = document.createElement("span");
+      zzz.className = "buddy-zzz hidden";
+      zzz.textContent = "💤";
+      const art = document.createElement("span");
+      art.className = "buddy-art";
+      root.append(speech, zzz, art);
+
+      const b = { def, root, art, zzz, speech, moodHold: null, x: 78, animT: null, sayT: null };
+      root.addEventListener("click", (e) => {
+        e.stopPropagation(); // no cuenta como caricia a Gugugaga
+        if (GG.buddyResting(state)) { say(b, "shhh... 💤"); return; }
+        react("tap", b);
+        // Un amiguito contento también la alegra a ella, pero poquito: la
+        // mascota es compañía, no un atajo para llenar la barra de felicidad.
+        state.stats.happiness = GG.clamp(state.stats.happiness + 1);
+        GG.Save.save(state);
+      });
+      el.buddyLayer.appendChild(root);
+      place(b, 78);
+      return b;
+    }
+
+    function say(b, text) {
+      b.speech.textContent = text;
+      b.speech.classList.remove("hidden");
+      clearTimeout(b.sayT);
+      b.sayT = setTimeout(() => b.speech.classList.add("hidden"), 2400);
+    }
+
+    function anim(b, name) {
+      clearTimeout(b.animT);
+      b.root.classList.remove("hop", "wiggle", "worry");
       if (!name || name === "nap") return;
-      void el.buddy.offsetWidth; // reinicia la animación
-      el.buddy.classList.add(name);
-      animTimer = setTimeout(() => el.buddy.classList.remove(name), 1400);
+      void b.root.offsetWidth; // reinicia la animación
+      b.root.classList.add(name);
+      b.animT = setTimeout(() => b.root.classList.remove(name), 1400);
     }
 
-    function say(text) {
-      el.buddySpeech.textContent = text;
-      el.buddySpeech.classList.remove("hidden");
-      clearTimeout(speechTimer);
-      speechTimer = setTimeout(() => el.buddySpeech.classList.add("hidden"), 2400);
-    }
-
-    // Emojis que flotan sobre la mascota, no sobre Gugugaga.
-    function fx(list) {
+    function fx(b, list) {
       if (!list) return;
       list.forEach((e, i) =>
         setTimeout(() => {
@@ -500,108 +548,100 @@
           s.style.left = "0%";
           s.style.top = "-40%";
           s.style.fontSize = "20px";
-          el.buddy.appendChild(s);
+          b.root.appendChild(s);
           setTimeout(() => s.remove(), 1300);
         }, i * 150)
       );
     }
 
-    // Ánimo DIBUJADO de la mascota. Las reacciones ponen uno transitorio; si no
-    // hay ninguno vigente, el ánimo sale del estado de Gugugaga: mientras ella
-    // esté enferma o sucia el amigo se queda preocupado, que es justamente la
-    // señal que queremos que la nena lea.
-    let moodHold = null;
-    function moodNow() {
-      if (GG.buddyResting(state)) return "dormido";
-      if (moodHold && Date.now() < moodHold.until) return moodHold.name;
-      moodHold = null;
-      if (GG.illnessOf(state)) return "triste";
-      if (state.stats.cleanliness < 35) return "triste";
-      return "normal";
-    }
-
-    function render() {
-      const b = GG.activeBuddy(state);
-      el.buddy.classList.toggle("hidden", !b);
-      if (!b) return;
-      // Si existe el PNG de este ánimo (o el `normal` de respaldo) se dibuja la
-      // ilustración; si no, el emoji. Ver la convención en js/buddies.js.
-      const src = GG.buddyArtSrc(b, moodNow());
+    function paint(b) {
+      const src = GG.buddyArtSrc(b.def, moodNow(b));
       if (src) {
-        let img = el.buddyArt.querySelector("img");
+        let img = b.art.querySelector("img");
         if (!img) {
-          el.buddyArt.textContent = "";
+          b.art.textContent = "";
           img = document.createElement("img");
           img.className = "buddy-img";
           img.alt = "";
           img.draggable = false;
-          // Si el archivo no está, se anota y se vuelve al emoji sin dejar el
-          // ícono de imagen rota en pantalla.
           img.addEventListener("error", () => {
             GG.markBuddyArtMissing(img.getAttribute("src"));
-            el.buddyArt.innerHTML = "";
-            render();
+            b.art.innerHTML = "";
+            paint(b);
           });
-          el.buddyArt.appendChild(img);
+          b.art.appendChild(img);
         }
         if (img.getAttribute("src") !== src) img.setAttribute("src", src);
-      } else if (el.buddyArt.textContent !== b.emoji) {
-        el.buddyArt.innerHTML = "";
-        el.buddyArt.textContent = b.emoji;
+      } else if (b.art.textContent !== b.def.emoji) {
+        b.art.innerHTML = "";
+        b.art.textContent = b.def.emoji;
       }
       const resting = GG.buddyResting(state);
-      el.buddy.classList.toggle("nap", resting);
-      el.buddyZzz.classList.toggle("hidden", !resting);
-      if (resting) {
-        el.buddySpeech.classList.add("hidden");
-        place(66); // se acurruca al lado de ella
+      b.root.classList.toggle("nap", resting);
+      b.zzz.classList.toggle("hidden", !resting);
+      if (resting) b.speech.classList.add("hidden");
+    }
+
+    // Sincroniza el DOM con la selección: crea las nuevas, borra las que sacó.
+    function render() {
+      const want = GG.activeBuddies(state);
+      const ids = new Set(want.map((d) => d.id));
+      live.forEach((b, id) => {
+        if (!ids.has(id)) { b.root.remove(); live.delete(id); }
+      });
+      want.forEach((def, i) => {
+        let b = live.get(def.id);
+        if (!b) {
+          b = build(def);
+          live.set(def.id, b);
+          // Repartidas de entrada para que no aparezcan todas en el mismo punto.
+          place(b, i % 2 === 0 ? 78 + i * 8 : -14 - i * 6);
+        }
+        b.def = def;
+        paint(b);
+      });
+      if (GG.buddyResting(state)) {
+        // De noche se acurrucan al lado de ella, en fila y sin pisarse.
+        [...live.values()].forEach((b, i) => place(b, 66 + i * 13));
       }
     }
 
-    // Reacción a algo que acaba de pasar. Mientras duerme no reacciona a nada
-    // salvo a que la despierten.
-    function react(kind) {
-      const r = GG.buddyReact(state, kind);
-      if (!r) return;
+    // Reacción a algo que pasó. `only` limita la reacción a una sola mascota
+    // (el toque). Si no, reaccionan TODAS pero habla UNA: cuatro burbujas a la
+    // vez no se leen, y el grupo entero moviéndose ya comunica la emoción.
+    function react(kind, only) {
       if (GG.buddyResting(state) && kind !== "sleep") return;
-      if (r.mood && r.mood !== "normal") moodHold = { name: r.mood, until: Date.now() + 2200 };
-      render();
-      anim(r.anim);
-      fx(r.fx);
-      if (r.speech) say(r.speech);
+      const list = only ? [only] : [...live.values()];
+      if (!list.length) return;
+      const talker = only || GG.pick(list);
+      list.forEach((b) => {
+        const r = GG.buddyReact(state, kind, b.def);
+        if (!r) return;
+        if (r.mood && r.mood !== "normal") b.moodHold = { name: r.mood, until: Date.now() + 2200 };
+        paint(b);
+        anim(b, r.anim);
+        fx(b, r.fx);
+        if (b === talker && r.speech) say(b, r.speech);
+      });
     }
 
     function walk() {
       clearTimeout(walkTimer);
-      const delay = 3500 + Math.random() * 4500;
       walkTimer = setTimeout(() => {
-        if (!GG.activeBuddy(state)) return walk();
-        if (!GG.buddyResting(state) && !document.hidden) {
-          place(pickX());
-          if (Math.random() < 0.35) react("idle");
+        if (!GG.buddyResting(state) && !document.hidden && live.size) {
+          // Se mueve UNA por vez: si se mudaran todas juntas la escena parece
+          // un desfile en vez de unos bichos dando vueltas.
+          const b = GG.pick([...live.values()]);
+          place(b, pickX(b.def.id));
+          if (Math.random() < 0.3) react("idle", b);
         }
         walk();
-      }, delay);
+      }, 2600 + Math.random() * 3200);
     }
 
-    el.buddy.addEventListener("click", (e) => {
-      e.stopPropagation(); // no cuenta como caricia a Gugugaga
-      const b = GG.activeBuddy(state);
-      if (!b) return;
-      if (GG.buddyResting(state)) {
-        say("shhh... 💤");
-        return;
-      }
-      react("tap");
-      // Un amiguito contento también la alegra a ella, pero poquito: la mascota
-      // es compañía, no un atajo para llenar la barra de felicidad.
-      state.stats.happiness = GG.clamp(state.stats.happiness + 1);
-      GG.Save.save(state);
-    });
-
-    // Reacciones que nacen de un ESTADO, no de un botón: sólo deben dispararse
-    // en el flanco (cuando la cosa empieza), si no el amigo hablaría cada
-    // segundo mientras ella siga enferma o sucia.
+    // Reacciones que nacen de un ESTADO, no de un botón: sólo se disparan en el
+    // flanco (cuando la cosa empieza), si no hablarían cada segundo mientras
+    // ella siga enferma o sucia.
     let wasSick = false;
     let wasDirty = false;
     function watch() {
@@ -615,31 +655,34 @@
     }
 
     walk();
-    return { render, react, walk, watch };
+    return { render, react, watch, imgs: () => [...live.values()].map((b) => b.art.querySelector("img")) };
   })();
 
-  // ---------- mascotas: elegir ----------
+  // ---------- mascotas: elegir cuáles ----------
+  // Multi-selección a propósito: se prenden y apagan las que quiera y andan
+  // todas juntas. Elegir "cuál" convertía cada amiga nueva en el reemplazo de
+  // la anterior, que es lo contrario a coleccionar.
   function openBuddies() {
     el.buddyItems.innerHTML = "";
-    const items = [{ id: null, label: "Ninguno", preview: "🚫", stars: 0, none: true }].concat(GG.BUDDIES);
-    items.forEach((b) => {
-      const unlocked = b.none || GG.buddyUnlocked(state, b);
-      const sel = state.buddy === (b.none ? null : b.id);
+    GG.BUDDIES.forEach((b) => {
+      const unlocked = GG.buddyUnlocked(state, b);
+      const on = GG.buddyActive(state, b.id);
       const btn = document.createElement("button");
-      btn.className = "citem" + (sel ? " sel" : "") + (unlocked ? "" : " locked");
+      btn.className = "citem" + (on ? " sel" : "") + (unlocked ? "" : " locked");
       btn.innerHTML =
-        '<span class="cico">' + (unlocked ? (b.none ? b.preview : b.emoji) : "🔒") + "</span>" +
-        '<span class="cname">' + (unlocked ? b.label : b.stars + " ⭐") + "</span>";
+        '<span class="cico">' + (unlocked ? b.emoji : "🔒") + "</span>" +
+        '<span class="cname">' + (unlocked ? b.label : b.stars + " ⭐") + "</span>" +
+        (unlocked ? '<span class="ctick">' + (on ? "✓" : "") + "</span>" : "");
       btn.addEventListener("click", () => {
         if (!unlocked) {
           toast("🔒 " + b.label + " llega con " + b.stars + " ⭐. ¡Cuidala bien todo el día!", 4600);
           return;
         }
-        state.buddy = b.none ? null : b.id;
+        const now = GG.toggleBuddy(state, b.id);
         GG.Save.save(state);
-        Buddy.render();
-        if (!b.none) {
-          Buddy.react("tap");
+        Buddies.render();
+        if (now) {
+          Buddies.react("tap");
           GG.Audio.play("pet");
         }
         openBuddies();
@@ -649,6 +692,7 @@
     openSheet(el.buddies);
   }
   el.buddyBtn.addEventListener("click", openBuddies);
+
 
   // ---------- scenes ----------
   function openScenes() {
@@ -697,8 +741,8 @@
       bg: sceneBg[state.scene] || null,
       // La mascota también sale en la foto: si es parte de la escena, es parte
       // del recuerdo. Se la pone a un lado fijo para que nunca tape la cara.
-      buddy: GG.activeBuddy(state),
-      buddyImg: el.buddyArt.querySelector("img"),
+      buddies: GG.activeBuddies(state),
+      buddyImgs: Buddies.imgs(),
     }, stamped);
   }
 
@@ -1059,7 +1103,7 @@
   GG.buddyArtSources().forEach((src) =>
     probeArt(src, () => {
       GG.markBuddyArtMissing(src);
-      Buddy.render();
+      Buddies.render();
     })
   );
 

@@ -74,9 +74,13 @@
   // chiquita y flotando arriba de la cabeza. Este se calculó para que el borde
   // inferior caiga donde apoya el de fiesta (15.9% del stage).
   const A_CORONA = { top: -8, left: 31.8, width: 39 };
-  // Calibrado con tools/preview.py contra necklace-corazon.png: la cadena queda
-  // justo bajo el borde de la capucha y el dije sobre la panza blanca.
-  const A_NECK = { top: 40, left: 34, width: 32 };
+  // Los collares TAMPOCO comparten anchor, por la misma razón que los gorros:
+  // se generan sueltos y cada PNG deja un margen transparente distinto (uno
+  // arranca al 15.7% de su cuadro y otro al 8.6%), así que con un anchor común
+  // quedaban a distintas alturas y encima del borde de la capucha.
+  // Cada uno está calculado con `tools/fit_anchor.py --top 45.6 --width 27`
+  // para que su borde superior caiga JUSTO en el borde del traje (45.6% del
+  // stage) y el dije quede sobre el pecho.
 
   GG.COSMETICS = {
     head: [
@@ -117,9 +121,9 @@
     ],
     accessory: [
       { id: "none", label: "Ninguno", preview: "🚫" },
-      { id: "corazon", label: "Corazón", preview: "❤️", love: 20, img: "assets/art/necklace-corazon.png", anchor: A_NECK },
-      { id: "perla", label: "Perlas", preview: "🦪", love: 40, img: "assets/art/necklace-perla.png", anchor: A_NECK },
-      { id: "estrella", label: "Estrella", preview: "⭐", love: 55, img: "assets/art/necklace-estrella.png", anchor: A_NECK },
+      { id: "corazon", label: "Corazón", preview: "❤️", love: 20, img: "assets/art/necklace-corazon.png", anchor: { top: 40.3, left: 33.1, width: 33.7 } },
+      { id: "perla", label: "Perlas", preview: "🦪", love: 40, img: "assets/art/necklace-perla.png", anchor: { top: 42.9, left: 34.3, width: 31.4 } },
+      { id: "estrella", label: "Estrella", preview: "⭐", love: 55, img: "assets/art/necklace-estrella.png", anchor: { top: 42.4, left: 33.8, width: 32.4 } },
     ],
   };
 

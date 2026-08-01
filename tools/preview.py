@@ -35,7 +35,7 @@ A_BODY = {"top": 33, "left": 12, "width": 76}
 A_HAT = {"top": -19, "left": 33, "width": 36}
 # Cada gorro tiene su forma: ver el comentario en js/cosmetics.js.
 A_CORONA = {"top": -8, "left": 31.8, "width": 39}
-A_NECK = {"top": 40, "left": 34, "width": 32}  # calibrado con necklace-corazon
+# Cada collar tiene el suyo: ver el comentario en js/cosmetics.js.
 
 CATALOG = {
     "body": {
@@ -57,9 +57,9 @@ CATALOG = {
         "miku": ("head-miku.png", A_HEAD),
     },
     "accessory": {
-        "corazon": ("necklace-corazon.png", A_NECK),
-        "perla": ("necklace-perla.png", A_NECK),
-        "estrella": ("necklace-estrella.png", A_NECK),
+        "corazon": ("necklace-corazon.png", {"top": 40.3, "left": 33.1, "width": 33.7}),
+        "perla": ("necklace-perla.png", {"top": 42.9, "left": 34.3, "width": 31.4}),
+        "estrella": ("necklace-estrella.png", {"top": 42.4, "left": 33.8, "width": 32.4}),
     },
     "hat": {
         "party": ("hat-party.png", A_HAT),

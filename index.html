@@ -74,14 +74,11 @@
         </div>
       </div>
 
-      <!-- Mascota: se pasea sola por la escena. Vive dentro de #petStage para
-           quedar siempre a la altura de los pies de Gugugaga en cualquier
-           pantalla; puede salirse de la caja (left negativo o >100%). -->
-      <div id="buddy" class="buddy hidden">
-        <div id="buddySpeech" class="buddy-speech hidden"></div>
-        <span id="buddyZzz" class="buddy-zzz hidden">💤</span>
-        <span id="buddyArt" class="buddy-art">🐤</span>
-      </div>
+      <!-- Mascotas: se pasean solas por la escena. Viven dentro de #petStage
+           para quedar siempre a la altura de los pies de Gugugaga en cualquier
+           pantalla; pueden salirse de la caja (left negativo o >100%).
+           El contenido lo arma js/game.js, una por cada amiga elegida. -->
+      <div id="buddyLayer" class="buddy-layer"></div>
 
       <div id="fx"></div>
     </div>

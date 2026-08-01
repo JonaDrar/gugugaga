@@ -44,9 +44,13 @@
       if (!saved.scene) saved.scene = "cielo";
       if (!saved.name) saved.name = "Gugugaga";
       if (!saved.health) saved.health = GG.defaultHealth();
-      // `buddy: null` es "no quiero mascota", por eso se pregunta por la CLAVE y
-      // no por el valor — si no, cada carga le devolvería el pollito.
-      if (!("buddy" in saved)) saved.buddy = "pollito";
+      // Las mascotas pasaron de "una elegida" (`buddy`) a "las que quiera"
+      // (`buddies`, lista). Se migra lo que tuviera puesto; si había elegido
+      // "ninguna" (buddy: null) se respeta y queda la lista vacía.
+      if (!Array.isArray(saved.buddies)) {
+        saved.buddies = "buddy" in saved ? (saved.buddy ? [saved.buddy] : []) : ["pollito"];
+        delete saved.buddy;
+      }
       if (typeof saved.stars !== "number") saved.stars = 0;
       if (typeof saved.streak !== "number") saved.streak = 0;
       if (!saved.today) saved.today = GG.newToday(GG.dayNumber(saved, Date.now()));
@@ -66,7 +70,7 @@
       today: GG.newToday(1),
       name: "Gugugaga",
       scene: "cielo",
-      buddy: "pollito", // el primer amigo viene incluido (0 ⭐)
+      buddies: ["pollito"], // el primer amigo viene incluido (0 ⭐)
       foods: { tried: [] },
       health: GG.defaultHealth(),
       stats: { hunger: 80, happiness: 80, energy: 80, cleanliness: 80 },

@@ -147,10 +147,30 @@
 
   GG.buddyUnlocked = (state, b) => GG.starsUnlocked(state, b.stars);
 
-  // El amigo activo, o null si eligió "ninguno".
-  GG.activeBuddy = function (state) {
-    if (state.buddy === null) return null; // elección explícita de no tener
-    return GG.findBuddy(state.buddy) || GG.BUDDIES[0];
+  // Las mascotas NO son excluyentes: se eligen las que se quieran y andan todas
+  // dando vueltas juntas. Elegir "cuál" en vez de "cuáles" convertía cada amigo
+  // nuevo en el reemplazo del anterior, que es justo lo contrario a coleccionar.
+  GG.activeBuddies = function (state) {
+    const ids = Array.isArray(state.buddies) ? state.buddies : [];
+    return ids.map(GG.findBuddy).filter(Boolean).filter((b) => GG.buddyUnlocked(state, b));
+  };
+
+  GG.buddyActive = (state, id) =>
+    Array.isArray(state.buddies) && state.buddies.indexOf(id) >= 0;
+
+  // Prende/apaga una mascota. Devuelve true si quedó puesta.
+  GG.toggleBuddy = function (state, id) {
+    if (!Array.isArray(state.buddies)) state.buddies = [];
+    const i = state.buddies.indexOf(id);
+    if (i >= 0) {
+      state.buddies.splice(i, 1);
+      return false;
+    }
+    // Se mantiene el orden del catálogo para que siempre se paseen igual.
+    state.buddies.push(id);
+    state.buddies.sort((a, b) => GG.BUDDIES.findIndex((x) => x.id === a) -
+                                 GG.BUDDIES.findIndex((x) => x.id === b));
+    return true;
   };
 
   // Amigos que se acaban de abrir al pasar de `before` a `after` estrellas.
@@ -175,8 +195,8 @@
     idle: { anim: "wiggle", fx: null },
   };
 
-  GG.buddyReact = function (state, kind) {
-    const b = GG.activeBuddy(state);
+  GG.buddyReact = function (state, kind, buddy) {
+    const b = buddy || GG.activeBuddies(state)[0];
     if (!b) return null;
     const r = REACTION[kind] || REACTION.idle;
     const lines = b.lines[kind] || b.lines.idle;
