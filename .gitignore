@@ -1,6 +1,9 @@
 __pycache__/
 *.pyc
 .DS_Store
+.env
 
 # Local scratch renders from tools/preview.py
 assets/art/_preview.png
+
+tools/.gen_art_spend.json

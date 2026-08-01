@@ -67,9 +67,9 @@
   const A_HEAD = { top: 0, left: 22.2, width: 56 };
   const A_BODY = { top: 33, left: 12, width: 76 };
   const A_HAT = { top: -19, left: 33, width: 36 };
-  // El collar es el único anchor SIN calibrar (no hay arte todavía): va sobre el
-  // pecho, justo debajo del hueco de la cara. Calibrar con tools/preview.py.
-  const A_NECK = { top: 36, left: 35, width: 30 };
+  // Calibrado con tools/preview.py contra necklace-corazon.png: la cadena queda
+  // justo bajo el borde de la capucha y el dije sobre la panza blanca.
+  const A_NECK = { top: 40, left: 34, width: 32 };
 
   GG.COSMETICS = {
     head: [

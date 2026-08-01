@@ -33,7 +33,7 @@ LAYER_ORDER = ["body", "head", "accessory", "hat"]  # back -> front
 A_HEAD = {"top": 0, "left": 22.2, "width": 56}
 A_BODY = {"top": 33, "left": 12, "width": 76}
 A_HAT = {"top": -19, "left": 33, "width": 36}
-A_NECK = {"top": 36, "left": 35, "width": 30}  # SIN calibrar: no hay arte aún
+A_NECK = {"top": 40, "left": 34, "width": 32}  # calibrado con necklace-corazon
 
 CATALOG = {
     "body": {
