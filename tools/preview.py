@@ -27,17 +27,39 @@ LOOK = {"body": "penguin", "head": "penguin", "accessory": None, "hat": "party"}
 LAYER_ORDER = ["body", "head", "accessory", "hat"]  # back -> front
 
 # --- catalog: mirror of js/cosmetics.js (file + anchor per piece) --------------
+# Las piezas cuyo PNG todavía no existe están declaradas igual: render() las
+# saltea si falta el archivo, así este script sirve para calibrar el anchor
+# apenas aparece el arte, sin editar nada acá.
+A_HEAD = {"top": 0, "left": 22.2, "width": 56}
+A_BODY = {"top": 33, "left": 12, "width": 76}
+A_HAT = {"top": -19, "left": 33, "width": 36}
+A_NECK = {"top": 36, "left": 35, "width": 30}  # SIN calibrar: no hay arte aún
+
 CATALOG = {
     "body": {
-        "penguin": ("body-penguin.png", {"top": 33, "left": 12, "width": 76}),
+        "penguin": ("body-penguin.png", A_BODY),
+        "vestido": ("body-vestido.png", A_BODY),
+        "pijama": ("body-pijama.png", A_BODY),
+        "dino": ("body-dino.png", A_BODY),
+        "overol": ("body-overol.png", A_BODY),
     },
     "head": {
-        "penguin": ("head-penguin.png", {"top": 0, "left": 22.2, "width": 56}),
+        "penguin": ("head-penguin.png", A_HEAD),
+        "gato": ("head-gato.png", A_HEAD),
         "bunny": ("head-bunny.png", {"top": 0, "left": 21.8, "width": 56}),
+        "dino": ("head-dino.png", A_HEAD),
+        "oso": ("head-oso.png", A_HEAD),
     },
-    "accessory": {},
+    "accessory": {
+        "corazon": ("necklace-corazon.png", A_NECK),
+        "perla": ("necklace-perla.png", A_NECK),
+        "estrella": ("necklace-estrella.png", A_NECK),
+    },
     "hat": {
-        "party": ("hat-party.png", {"top": -19, "left": 33, "width": 36}),
+        "party": ("hat-party.png", A_HAT),
+        "gorro": ("hat-gorro.png", A_HAT),
+        "corona": ("hat-corona.png", A_HAT),
+        "flor": ("hat-flor.png", A_HAT),
     },
 }
 BASE = "girl-base.png"  # the expression layer (girl face)
@@ -57,6 +79,9 @@ def render(look, bg=(206, 235, 255, 255), size=480, base=BASE):
         if not pid or pid not in CATALOG.get(slot, {}):
             continue
         fname, anchor = CATALOG[slot][pid]
+        if not (ART / fname).exists():
+            print(f"  (falta {fname}, se saltea)")
+            continue
         paste(cv, Image.open(ART / fname).convert("RGBA"), anchor)
     return cv.resize((size, size), Image.LANCZOS).convert("RGB")
 

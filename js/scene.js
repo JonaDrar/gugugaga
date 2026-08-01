@@ -155,12 +155,12 @@
       const buddy = charEls.buddy;
       if (buddy) {
         const feet = y0 + S * 0.93;
-        if (buddy.img) {
-          const bi = charEls.buddyImg;
-          if (bi && bi.complete && bi.naturalWidth) {
-            const bs = W * 0.15;
-            try { ctx.drawImage(bi, W * 0.75, feet - bs, bs, bs); } catch (e) { /* ignore */ }
-          }
+        // Si hay ilustración se usa la MISMA <img> que está en pantalla, así la
+        // foto sale con el ánimo que tenía en ese momento.
+        const bi = charEls.buddyImg;
+        if (bi && bi.complete && bi.naturalWidth) {
+          const bs = W * 0.19;
+          try { ctx.drawImage(bi, W * 0.80 - bs / 2, feet - bs, bs, bs); } catch (e) { /* ignore */ }
         } else {
           const fs = W * 0.13;
           ctx.font = fs + "px serif";

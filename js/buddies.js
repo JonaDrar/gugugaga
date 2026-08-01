@@ -16,9 +16,22 @@
 // costos se intercalan con los de las escenas (2/5/9 ⭐) para que SIEMPRE haya
 // algo próximo por abrir: 0 / 3 / 7 / 12.
 //
-// ARTE: cada mascota funciona hoy con un emoji. Si algún día existe el PNG, se
-// le pone `img` y el juego lo usa en vez del emoji, igual que las expresiones —
-// el código no cambia, sólo se agrega el archivo.
+// ARTE: cada mascota funciona hoy con un emoji y NO hace falta generar nada.
+// Cuando exista el PNG entra solo, por NOMBRE DE ARCHIVO — no hay que tocar
+// código. Convención:
+//
+//     assets/art/buddy-<id>-<ánimo>.png     ej. buddy-gatito-feliz.png
+//
+// Son sólo CUATRO ánimos por mascota, y ninguno es obligatorio:
+//
+//     normal   parada, tranquila          ← el único que conviene hacer primero
+//     feliz    comer / jugar / bañarse / que la acaricien
+//     dormido  mientras Gugugaga duerme
+//     triste   cuando ella se enferma o está sucia
+//
+// La cadena de respaldo es: <ánimo> → normal → emoji. O sea que con UN solo
+// archivo (`buddy-<id>-normal.png`) la mascota ya deja de ser emoji, y cada
+// ánimo que agregues después se suma sin romper nada.
 (function () {
   const GG = (window.GG = window.GG || {});
 
@@ -27,7 +40,6 @@
       id: "pollito",
       label: "Pollito",
       emoji: "🐤",
-      img: null,
       stars: 0, // el primer amigo es gratis: nunca está sola
       call: "¡pío pío!",
       lines: {
@@ -45,7 +57,6 @@
       id: "gatito",
       label: "Gatito",
       emoji: "🐱",
-      img: null,
       stars: 3,
       call: "¡miau!",
       lines: {
@@ -63,7 +74,6 @@
       id: "perrito",
       label: "Perrito",
       emoji: "🐶",
-      img: null,
       stars: 7,
       call: "¡guau!",
       lines: {
@@ -81,7 +91,6 @@
       id: "dino",
       label: "Dino",
       emoji: "🦕",
-      img: null,
       stars: 12,
       call: "¡ROAR!",
       lines: {
@@ -98,6 +107,43 @@
   ];
 
   GG.findBuddy = (id) => GG.BUDDIES.find((b) => b.id === id) || null;
+
+  // ---------- arte por ánimo (drop-in) ----------
+  GG.BUDDY_MOODS = ["normal", "feliz", "dormido", "triste"];
+
+  // Qué ánimo DIBUJADO corresponde a cada reacción. Varias reacciones caen en el
+  // mismo ánimo a propósito: son cuatro ilustraciones por mascota, no ocho.
+  GG.BUDDY_MOOD_OF = {
+    feed: "feliz", play: "feliz", clean: "feliz", tap: "feliz",
+    sleep: "dormido",
+    sick: "triste", dirty: "triste",
+    idle: "normal",
+  };
+
+  GG.buddyArtPath = (b, mood) => "assets/art/buddy-" + b.id + "-" + mood + ".png";
+
+  const missingBuddyArt = new Set();
+  GG.markBuddyArtMissing = function (src) {
+    if (src) missingBuddyArt.add(src);
+  };
+
+  // Imagen para este ánimo, con respaldo a `normal`. null = todavía no hay arte
+  // para esta mascota y se dibuja el emoji.
+  GG.buddyArtSrc = function (b, mood) {
+    if (!b) return null;
+    const has = (m) => {
+      const src = GG.buddyArtPath(b, m);
+      return missingBuddyArt.has(src) ? null : src;
+    };
+    return has(mood || "normal") || has("normal");
+  };
+
+  // Todas las rutas posibles, para probarlas al arrancar y saber cuáles faltan.
+  GG.buddyArtSources = function () {
+    const out = [];
+    GG.BUDDIES.forEach((b) => GG.BUDDY_MOODS.forEach((m) => out.push(GG.buddyArtPath(b, m))));
+    return out;
+  };
 
   GG.buddyUnlocked = (state, b) => GG.starsUnlocked(state, b.stars);
 
@@ -138,6 +184,7 @@
       buddy: b,
       anim: r.anim,
       fx: r.fx,
+      mood: GG.BUDDY_MOOD_OF[kind] || "normal",
       speech: GG.pick(lines),
     };
   };

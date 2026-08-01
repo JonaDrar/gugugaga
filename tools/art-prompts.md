@@ -61,18 +61,59 @@ Full body, centered, transparent background, no shadow, no text.
 
 ---
 
+## 0. Lista de lo que falta (checklist)
+
+Todo lo de acá abajo **ya está registrado en el código**. El juego esconde lo que
+no tiene archivo y lo muestra solo apenas el PNG aparece en `assets/art/`:
+**no hay que tocar nada de código, sólo dejar el archivo con el nombre exacto.**
+
+**Ropa** (§2.1–2.4) — se desbloquean con ❤️ en ese orden:
+
+| archivo | slot | ❤️ | prompt |
+|---|---|---|---|
+| `head-gato.png` | cabeza | 20 | §2.1 |
+| `head-dino.png` | cabeza | 50 | §2.1 |
+| `head-oso.png` | cabeza | 65 | §2.1 |
+| `body-vestido.png` | cuerpo | 25 | §2.2 |
+| `body-pijama.png` | cuerpo | 40 | §2.2 |
+| `body-dino.png` | cuerpo | 55 | §2.2 |
+| `body-overol.png` | cuerpo | 70 | §2.2 |
+| `hat-gorro.png` | gorro | 30 | §2.3 |
+| `hat-corona.png` | gorro | 45 | §2.3 |
+| `hat-flor.png` | gorro | 60 | §2.3 |
+| `necklace-corazon.png` | extra | 20 | §2.4 |
+| `necklace-perla.png` | extra | 40 | §2.4 |
+| `necklace-estrella.png` | extra | 55 | §2.4 |
+
+**Mascotas** (§2.6) — 4 ánimos × 4 mascotas, pero **ninguno es obligatorio**:
+`buddy-<mascota>-<ánimo>.png` con mascota ∈ `pollito · gatito · perrito · dino`
+y ánimo ∈ `normal · feliz · dormido · triste`.
+
+> **Por dónde empezar:** hacé `buddy-pollito-normal.png` solo. Con ese archivo el
+> pollito ya deja de ser emoji en todo el juego. Después sumás `feliz`, y así.
+> Nunca queda nada a medias: lo que falta cae al `normal`, y si falta el `normal`
+> vuelve al emoji.
+
+**Orden que yo sugeriría:** `head-gato` (es la primera ropa nueva que ella va a
+alcanzar, con 20 ❤️) → `buddy-pollito-normal` → `body-vestido` → el resto.
+
+---
+
 ## 2. Piezas sueltas (gorros, cabezas, cuerpos, accesorios)
 
 Se generan como **objeto aislado** (no sobre la niña) y se posicionan con
 `anchor {top,left,width}`. Ver la receta completa en `README.md` →
 *Cómo agregar una pieza de arte nueva*.
 
-Molde genérico:
+Los anchors de las piezas nuevas ya están puestos, **copiados de su hermana ya
+calibrada** (todas las cabezas comparten anchor, todos los cuerpos comparten
+anchor, etc.). Por eso el prompt insiste tanto en *mismo encuadre, misma escala*:
+si respetás eso, la pieza calza sin tocar nada. Si igual queda torcida:
+
 ```
-A single <PIEZA>, isolated object, 3D Nendoroid figurine style, glossy toy
-plastic look, soft frontal lighting, centered, transparent background, no shadow,
-no character, no text.
+python3 tools/preview.py            # componé y mirá el PNG que escribe
 ```
+y se ajusta el anchor en `js/cosmetics.js` (y el espejo en `tools/preview.py`).
 
 ### 2.1 Capuchas / cabezas nuevas → slot `head`
 
@@ -87,17 +128,31 @@ the SAME round face opening in the same position and the same size as the
 reference. Same 3D Nendoroid figurine style, same soft plush fabric texture,
 same soft frontal lighting.
 CHANGE it into a <ANIMAL> hood instead of a penguin: <COLOR> plush, and
-<DESCRIPCIÓN DE LAS OREJAS>. Replace the penguin face on the hood with a cute
-<ANIMAL> face above the opening: <OJOS Y NARIZ>.
+<OREJAS>. Replace the penguin face on the hood with a cute <ANIMAL> face above
+the opening: <CARA>.
 Keep the ears inside the frame — do not crop them. Do not change the size or
 position of the face opening. No head inside the hood, no character, no body.
 Isolated object, centered, transparent background, no shadow, no text.
 ```
+
+Reemplazos para las tres que faltan:
+
+**`head-gato.png` 🐱** — `<ANIMAL>` = `cat`, `<COLOR>` = `soft cream and orange
+tabby`, `<OREJAS>` = `two small pointed triangular cat ears with pink inner
+ears`, `<CARA>` = `two round black eyes, a tiny pink triangular nose and small
+whiskers`.
+
+**`head-dino.png` 🦕** — `<ANIMAL>` = `dinosaur`, `<COLOR>` = `bright mint green`,
+`<OREJAS>` = `a row of small rounded pastel-yellow spikes along the top instead
+of ears`, `<CARA>` = `two big round friendly eyes and two tiny nostrils`.
+
+**`head-oso.png` 🐻** — `<ANIMAL>` = `bear`, `<COLOR>` = `warm caramel brown`,
+`<OREJAS>` = `two big round bear ears on top with lighter beige inner ears`,
+`<CARA>` = `two round black eyes and a beige oval muzzle with a small dark nose`.
+
 Ojo: la capucha ocupa casi todo el cuadro, así que **orejas largas paradas no
 entran** sin achicar la capucha. Si las querés paradas, pedilas igual y se
 recalibra el anchor con `tools/preview.py`.
-
-Guardar como `head-<animal>.png`.
 
 ### 2.2 Cuerpos / trajes → slot `body`
 
@@ -109,38 +164,80 @@ Using the attached image as reference, generate a plush costume BODY (torso,
 arms and legs, NO head) with the EXACT same silhouette proportions, same size,
 same camera framing, same neck opening position, same 3D Nendoroid figurine
 style, same soft plush fabric texture and same soft frontal lighting.
-CHANGE it into <PRENDA>: <DESCRIPCIÓN Y COLORES>.
+CHANGE it into <PRENDA>.
 Do not change the size or position of the neck opening. No head, no face,
 no character. Isolated object, centered, transparent background, no shadow,
 no text.
 ```
-Ideas: `a pink puffy party dress with white frills`, `a yellow raincoat with
-matching boots`, `light blue denim overalls over a white shirt`, `a strawberry
-costume with green leaf collar`.
 
-Guardar como `body-<nombre>.png`.
+**`body-vestido.png` 👗** — `<PRENDA>` = `a puffy pink party dress with white
+frilly trim at the hem, short puffed sleeves, a white sash bow at the waist, and
+white tights with little black shoes`.
 
-### 2.3 Collares → slot `accessory`
+**`body-pijama.png` 🌙** — `<PRENDA>` = `a cozy light-blue footed pyjama onesie
+covered in small white cloud and yellow star patterns, with a soft white collar
+and white cuffs`.
+
+**`body-dino.png` 🦕** — `<PRENDA>` = `a bright mint green dinosaur costume
+onesie with a pale yellow belly panel, a row of small rounded pastel-yellow
+spikes down the back, and chunky green three-toed feet`. *(Combina con
+`head-dino.png` para el disfraz completo.)*
+
+**`body-overol.png` 👖** — `<PRENDA>` = `light blue denim dungarees with two
+shoulder straps and a front pocket, worn over a white long-sleeve t-shirt, with
+little red sneakers`.
+
+### 2.3 Gorros → slot `hat`
+
+**Referencia obligatoria: `assets/art/hat-party.png`**, para que el tamaño calce
+con el anchor que ya está calibrado (el gorro va apoyado ARRIBA de la capucha).
+
+```
+Using the attached image as reference, generate a single <GORRO> with the EXACT
+same size in frame, same camera framing, same scale and same soft frontal
+lighting as the reference hat. Same 3D Nendoroid figurine style, glossy toy
+look. The hat is seen from the front, sitting flat as if resting on top of a
+head, with the opening at the bottom.
+Isolated object, centered, transparent background, no shadow, no head,
+no character, no text.
+```
+
+**`hat-gorro.png` 🧶** — `<GORRO>` = `a chunky knitted winter beanie in mustard
+yellow with a big white fluffy pom-pom on top and a folded ribbed brim`.
+
+**`hat-corona.png` 👑** — `<GORRO>` = `a small golden princess crown with five
+rounded points, each tipped with a colored gem, and a band of pink and blue jewels`.
+
+**`hat-flor.png` 🌸** — `<GORRO>` = `a flower crown headband made of small pink
+and white daisies with green leaves, forming an arc`.
+
+### 2.4 Collares → slot `accessory`
 
 Acá NO hace falta referencia: es un objeto chico que se posiciona con su anchor.
 Se genera solo, centrado y **de frente**.
 
-```
-A single <TIPO DE COLLAR>, laid out flat and symmetrical, facing the viewer, as
-if worn around a neck: an open horseshoe/U shape with the pendant hanging at the
-bottom center. 3D Nendoroid figurine style, glossy toy plastic look, chunky
-cute proportions, soft frontal lighting, centered, isolated object,
-transparent background, no shadow, no neck, no character, no text.
-```
-Reemplazá `<TIPO DE COLLAR>` por:
-- `a gold chain necklace with a big red heart pendant`
-- `a pearl necklace with a pink bow pendant`
-- `a beaded rainbow necklace with a yellow star pendant`
+> ⚠️ Este es el **único anchor sin calibrar** del proyecto (no hay arte todavía).
+> Cuando llegue el primer collar, correr `python3 tools/preview.py` y ajustar
+> `A_NECK` en `js/cosmetics.js` para que caiga sobre el pecho.
 
-Guardar como `necklace-<nombre>.png`. Yo lo registro en el slot `accessory` y
-calibro el anchor sobre el pecho.
+```
+A single <COLLAR>, laid out flat and symmetrical, facing the viewer, as if worn
+around a neck: an open horseshoe/U shape with the pendant hanging at the bottom
+center. 3D Nendoroid figurine style, glossy toy plastic look, chunky cute
+proportions, soft frontal lighting, centered, isolated object, transparent
+background, no shadow, no neck, no character, no text.
+```
 
-### 2.4 Fondos de escenario 🏞️
+**`necklace-corazon.png` ❤️** — `<COLLAR>` = `a gold chain necklace with a big
+glossy red heart pendant`.
+
+**`necklace-perla.png` 🦪** — `<COLLAR>` = `a white pearl necklace with a pink
+ribbon bow pendant`.
+
+**`necklace-estrella.png` ⭐** — `<COLLAR>` = `a beaded rainbow necklace with a
+big yellow star pendant`.
+
+### 2.5 Fondos de escenario 🏞️
 
 Van en `js/scene.js`, campo `img` de cada escena. **Especificación técnica:**
 
@@ -168,20 +265,75 @@ and garlands on the walls`.
 Guardar como `assets/art/bg-<escena>.png` y avisame para engancharlo (o poné el
 nombre en el campo `img` de la escena en `js/scene.js` — es una línea).
 
-### 2.5 Mascota 🐾 → personaje aparte (no es una capa)
+### 2.6 Mascotas 🐾 — personaje aparte, con ánimos
 
 La mascota **no va sobre la niña**: se para al lado en la escena, así que se
-genera como personaje completo y chiquito. Debe mirar hacia adelante y estar
-apoyada (no flotando).
+genera como personaje completo y chiquito, mirando al frente y **apoyada**
+(no flotando).
+
+**Nombre de archivo — es lo único que importa:**
+
+```
+assets/art/buddy-<mascota>-<ánimo>.png
+```
+`<mascota>` ∈ `pollito` `gatito` `perrito` `dino`
+`<ánimo>` ∈ `normal` `feliz` `dormido` `triste`
+
+Cuándo se ve cada ánimo:
+
+| ánimo | cuándo aparece |
+|---|---|
+| `normal` | por defecto, paseándose |
+| `feliz` | comer, jugar, bañarse, y cuando la acarician |
+| `dormido` | mientras Gugugaga duerme |
+| `triste` | mientras ella está enferma o sucia |
+
+**Ninguno es obligatorio.** El respaldo es `<ánimo>` → `normal` → emoji, así que
+podés hacer de a uno y siempre se ve bien.
+
+**El primero (`normal`) se genera solo. Los otros tres van CON el `normal` de
+referencia**, para que sea el mismo bicho y no tres animales distintos.
+
+#### Primero: `buddy-<mascota>-normal.png`
 
 ```
 A single tiny cute <ANIMAL> companion character, chibi proportions, big round
-head, small body, standing on the ground facing the viewer, friendly happy
-expression. 3D Nendoroid figurine style, glossy toy plastic look, soft frontal
-lighting, full body, centered, isolated object, transparent background,
-no shadow, no text.
+head, small body, standing on the ground facing the viewer, calm friendly
+neutral expression, eyes open. 3D Nendoroid figurine style, glossy toy plastic
+look, soft frontal lighting, full body, centered, isolated object, transparent
+background, no shadow, no text.
 ```
-Ideas de `<ANIMAL>`: `baby seal`, `round orange cat`, `small white bunny`,
-`baby penguin chick`.
 
-Guardar como `pet-<animal>.png`.
+`<ANIMAL>` por mascota:
+- **pollito** → `fluffy yellow baby chick with a tiny orange beak and orange feet`
+- **gatito** → `round orange tabby kitten with a white belly and a striped tail`
+- **perrito** → `small cream-colored puppy with floppy brown ears and a stubby tail`
+- **dino** → `chubby mint green baby dinosaur with pale yellow belly and small
+  rounded spikes on its back`
+
+#### Después: los otros tres ánimos
+
+Adjuntá el `-normal.png` que acabás de guardar y usá:
+
+```
+Using the attached image as reference, generate the EXACT same tiny <ANIMAL>
+companion character: same species, same colors, same markings, same chibi
+proportions, same size and position in frame, same camera framing, same soft
+frontal lighting, same 3D Nendoroid figurine style.
+ONLY change the pose and expression to <ÁNIMO>.
+Do not change the colors, the design, the crop or the size.
+Full body, centered, isolated object, transparent background, no shadow, no text.
+```
+
+`<ÁNIMO>`:
+- **feliz** → `VERY HAPPY AND EXCITED: eyes curved into happy upward arcs, open
+  smiling mouth, both little arms raised up, hopping slightly off the ground`
+- **dormido** → `SLEEPING: curled up lying on the ground, eyes closed as gentle
+  curved lines, calm peaceful little smile` *(sin agregar Zzz: el juego ya pone
+  el suyo)*
+- **triste** → `SAD AND WORRIED: eyebrows angled up in the middle, big glossy
+  worried eyes, small downturned mouth, ears/head drooping, sitting down`
+
+**Tamaño:** cualquiera cuadrado sirve (512×512 alcanza y pesa poco); el juego la
+escala a ~110px. Lo importante es que **las cuatro sean del mismo tamaño y
+encuadre**, si no la mascota "salta" al cambiar de ánimo.

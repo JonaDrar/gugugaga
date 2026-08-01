@@ -139,6 +139,7 @@ body {
 }
 #char {
   position: relative;
+  z-index: 2;            /* por encima de la mascota (.buddy), que pasa por detrás */
   width: 100%;
   aspect-ratio: 1 / 1;   /* square: accessory %s map 1:1 to the artwork */
   max-height: 100%;
@@ -822,7 +823,10 @@ body.night {
   position: absolute;
   bottom: 13%;
   left: 78%;
-  z-index: 2;
+  /* Detrás de Gugugaga (#char va en z-index 2): al pasearse cruza el centro de
+     la escena, y por delante le taparía la cara justo cuando la nena la mira.
+     Por detrás, el mismo paseo se lee natural. */
+  z-index: 1;
   transition: left 2.4s cubic-bezier(.45, 0, .25, 1);
   cursor: pointer;
   /* el emoji se escala con el stage para que se vea igual en iPad y en celular */
@@ -835,6 +839,7 @@ body.night {
 .buddy-art {
   display: block;
   filter: drop-shadow(0 6px 5px rgba(0, 0, 0, .18));
+  /* el emoji ocupa ~1em; la ilustración va un poco más grande (ver .buddy-img) */
   animation: buddyBob 1.9s ease-in-out infinite;
   transform-origin: 50% 90%;
 }
@@ -863,6 +868,17 @@ body.night {
 /* Duerme junto a ella: quieto, inclinado y con su propio 💤. */
 #buddy.nap { transition: left .8s ease; }
 #buddy.nap .buddy-art { animation: none; transform: scaleX(var(--flip, 1)) rotate(12deg); }
+
+/* Ilustración de la mascota (reemplaza al emoji cuando el PNG existe).
+   ~2.4em ≈ 110px en iPad, contra los ~340px de Gugugaga: se lee como un
+   compañero chiquito y no compite con ella. */
+.buddy-img {
+  display: block;
+  width: 2.4em;
+  height: 2.4em;
+  object-fit: contain;
+  object-position: bottom center; /* queda apoyada, no flotando */
+}
 
 .buddy-zzz {
   position: absolute;

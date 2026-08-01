@@ -128,6 +128,24 @@
     probe.src = src;
   });
 
+  // Lo mismo para la ropa y para las mascotas: el catálogo declara piezas cuyo
+  // PNG puede no existir todavía. Se prueba cada archivo al arrancar y lo que
+  // falta simplemente no se ofrece — así generar arte nunca requiere tocar
+  // código, y nada aparece roto mientras tanto.
+  GG.pieceSources().forEach((src) => {
+    const probe = new Image();
+    probe.addEventListener("error", () => {
+      GG.markPieceMissing(src);
+      if (!el.closet.classList.contains("hidden")) openCloset();
+    });
+    probe.src = src;
+  });
+  GG.buddyArtSources().forEach((src) => {
+    const probe = new Image();
+    probe.addEventListener("error", () => GG.markBuddyArtMissing(src));
+    probe.src = src;
+  });
+
   // All heart costs in the catalog, ascending — drives the "next unlock" goal.
   function thresholds() {
     const out = [];
@@ -320,7 +338,9 @@
     el.charAcc.innerHTML = "";
     GG.LAYER_ORDER.forEach((slot) => {
       const it = GG.findCosmetic(slot, c[slot]);
-      if (it && it.img) {
+      // `pieceHasArt` evita el ícono de imagen rota si el PNG de una pieza
+      // equipada desaparece (por ejemplo al borrarlo del repo).
+      if (it && it.img && GG.pieceHasArt(it)) {
         const img = document.createElement("img");
         img.className = "acc-img acc-" + slot;
         img.src = it.img;
@@ -336,7 +356,10 @@
   }
 
   function renderCloset(tab) {
-    const items = GG.COSMETICS[tab] || [];
+    // Sólo las piezas que ya tienen su PNG: el catálogo declara más de las que
+    // están dibujadas, y una fila de casilleros vacíos que no se pueden tocar
+    // sólo genera frustración. Aparecen solas cuando el archivo existe.
+    const items = GG.availablePieces(state, tab);
     el.closetItems.innerHTML = "";
     items.forEach((it) => {
       const unlocked = GG.isUnlocked(state, tab, it);
@@ -359,7 +382,7 @@
       });
       el.closetItems.appendChild(b);
     });
-    el.closetSoon.textContent = GG.slotComingSoon(tab)
+    el.closetSoon.textContent = GG.slotComingSoon(state, tab)
       ? "🎨 Estamos creando más piezas en 3D. ¡Pronto habrá mucho para vestir a Gugugaga!"
       : "";
   }
@@ -434,11 +457,14 @@
     let walkTimer = null;
     let lastX = 78;
 
-    // Se pasea a los costados dejando libre el centro (30–70%), que es donde
-    // está parada Gugugaga: si le camina por encima tapa la cara.
+    // Se pasea a los costados dejando libre la franja donde está parada
+    // Gugugaga. Los rangos están calculados para que la mascota nunca se DETENGA
+    // detrás de ella: el dibujo de la nena ocupa ~29–76% del stage y la mascota
+    // ~32% de ancho, así que su borde tiene que quedar fuera de esa franja.
+    // Cruzarla al caminar sí está permitido (pasa por detrás, z-index 1).
     function pickX() {
       const left = Math.random() < 0.5;
-      return left ? -18 + Math.random() * 42 : 76 + Math.random() * 40;
+      return left ? -26 + Math.random() * 24 : 76 + Math.random() * 24;
     }
 
     function place(x) {
@@ -480,15 +506,47 @@
       );
     }
 
+    // Ánimo DIBUJADO de la mascota. Las reacciones ponen uno transitorio; si no
+    // hay ninguno vigente, el ánimo sale del estado de Gugugaga: mientras ella
+    // esté enferma o sucia el amigo se queda preocupado, que es justamente la
+    // señal que queremos que la nena lea.
+    let moodHold = null;
+    function moodNow() {
+      if (GG.buddyResting(state)) return "dormido";
+      if (moodHold && Date.now() < moodHold.until) return moodHold.name;
+      moodHold = null;
+      if (GG.illnessOf(state)) return "triste";
+      if (state.stats.cleanliness < 35) return "triste";
+      return "normal";
+    }
+
     function render() {
       const b = GG.activeBuddy(state);
       el.buddy.classList.toggle("hidden", !b);
       if (!b) return;
-      // `img` es opcional: hoy todas son emoji, pero si algún día hay PNG entra
-      // solo, sin tocar el resto del juego.
-      if (b.img) {
-        el.buddyArt.innerHTML = '<img src="' + b.img + '" alt="" class="buddy-img" />';
+      // Si existe el PNG de este ánimo (o el `normal` de respaldo) se dibuja la
+      // ilustración; si no, el emoji. Ver la convención en js/buddies.js.
+      const src = GG.buddyArtSrc(b, moodNow());
+      if (src) {
+        let img = el.buddyArt.querySelector("img");
+        if (!img) {
+          el.buddyArt.textContent = "";
+          img = document.createElement("img");
+          img.className = "buddy-img";
+          img.alt = "";
+          img.draggable = false;
+          // Si el archivo no está, se anota y se vuelve al emoji sin dejar el
+          // ícono de imagen rota en pantalla.
+          img.addEventListener("error", () => {
+            GG.markBuddyArtMissing(img.getAttribute("src"));
+            el.buddyArt.innerHTML = "";
+            render();
+          });
+          el.buddyArt.appendChild(img);
+        }
+        if (img.getAttribute("src") !== src) img.setAttribute("src", src);
       } else if (el.buddyArt.textContent !== b.emoji) {
+        el.buddyArt.innerHTML = "";
         el.buddyArt.textContent = b.emoji;
       }
       const resting = GG.buddyResting(state);
@@ -506,6 +564,8 @@
       const r = GG.buddyReact(state, kind);
       if (!r) return;
       if (GG.buddyResting(state) && kind !== "sleep") return;
+      if (r.mood && r.mood !== "normal") moodHold = { name: r.mood, until: Date.now() + 2200 };
+      render();
       anim(r.anim);
       fx(r.fx);
       if (r.speech) say(r.speech);
@@ -638,6 +698,7 @@
       // La mascota también sale en la foto: si es parte de la escena, es parte
       // del recuerdo. Se la pone a un lado fijo para que nunca tape la cara.
       buddy: GG.activeBuddy(state),
+      buddyImg: el.buddyArt.querySelector("img"),
     }, stamped);
   }
 

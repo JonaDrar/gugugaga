@@ -153,6 +153,32 @@ cartelito de "¡Desbloqueaste…!".
 **Diseño:** es una barra de premio, no una quinta tarea. Cuatro barras que bajan
 ya son suficientes obligaciones para una nena de 6 años.
 
+### El arte entra SOLO (regla general del proyecto)
+
+Vale para las tres cosas que necesitan PNG — **expresiones**, **ropa** y
+**mascotas**. El catálogo declara más piezas de las que están dibujadas; el juego
+prueba cada archivo al arrancar con un `<img>` de sonda y:
+
+| falta el PNG | está el PNG |
+|---|---|
+| la pieza **no se ofrece** en el clóset | aparece sola, en su lugar del orden |
+| el ánimo de la mascota cae a `normal`, y si falta, al emoji | se dibuja |
+| la expresión cae a `girl-base.png` | se usa |
+| no se anuncia como premio (`newlyUnlocked` la saltea) | se anuncia |
+
+**Generar arte no requiere tocar código: sólo dejar el archivo con el nombre
+exacto en `assets/art/`.** La lista completa de nombres pendientes está en
+`tools/art-prompts.md` §0, con el prompt de cada uno.
+
+Se eligió **esconder** las piezas sin arte en vez de mostrarlas grises: una fila
+de casilleros que no se pueden tocar sólo frustra, y así la ropa nueva le aparece
+a la nena como sorpresa. La pieza que tiene puesta nunca se esconde, para que
+borrar un archivo por accidente no la deje a medio vestir.
+
+Funciones: `GG.pieceHasArt` / `GG.availablePieces` / `GG.pieceSources`
+(`cosmetics.js`), `GG.buddyArtSrc` / `GG.buddyArtSources` (`buddies.js`),
+`GG.exprSrc` / `GG.exprSources` (`cosmetics.js`).
+
 ### Comidas (`js/foods.js`)
 Cada comida tiene `taste`: `fav` 😍 / `ok` 🙂 / `yuck` 😝. La que no le gusta es
 **graciosa, nunca triste**: casi no penaliza y siempre da una reacción cómica
@@ -261,12 +287,37 @@ caricia a Gugugaga.
 
 También **sale en las fotos**, apoyada sobre la misma línea de piso que ella.
 
-**Arte:** hoy cada mascota es un emoji, así que funciona sin generar nada. Cada
-entrada acepta un `img` opcional (igual que las expresiones): si algún día existe
-el PNG se agrega ahí y el juego lo usa en vez del emoji, sin tocar más código.
+**Arte por ánimo — drop-in por nombre de archivo.** Hoy cada mascota es un emoji
+y funciona sin generar nada. Cuando exista el PNG entra solo:
+
+```
+assets/art/buddy-<mascota>-<ánimo>.png      ej. buddy-gatito-feliz.png
+```
+
+Son **4 ánimos**, y ninguno es obligatorio:
+
+| ánimo | cuándo se ve |
+|---|---|
+| `normal` | por defecto, paseándose |
+| `feliz` | comer, jugar, bañarse, que la acaricien |
+| `dormido` | mientras Gugugaga duerme |
+| `triste` | mientras ella está enferma o sucia (**estado**, no un flash) |
+
+Respaldo: `<ánimo>` → `normal` → emoji. Con **un solo archivo**
+(`buddy-<id>-normal.png`) la mascota ya deja de ser emoji en todo el juego, y
+cada ánimo que se agregue después se suma sin romper nada. Prompts listos en
+`tools/art-prompts.md` §2.6.
+
+Los ánimos transitorios duran 2,2 s; los de estado (enferma/sucia) se mantienen
+mientras dure la causa, que es justo la señal que queremos que ella lea.
 
 **Agregar una mascota:** una entrada nueva en `GG.BUDDIES` con `id`, `label`,
 `emoji`, `stars` y `lines`. No hay que tocar nada más.
+
+**Capas:** la mascota va **detrás** de Gugugaga (`z-index` 1 contra 2 de `#char`).
+Se pasea cruzando la escena, y por delante le taparía la cara justo cuando la
+nena la está mirando; por detrás el mismo paseo se lee natural. Los rangos de
+`pickX()` además evitan que se *detenga* tapada.
 
 ### Bloqueos de cuidado
 - **No puede dormir sucia** (limpieza < `GG.DIRTY_SLEEP`): primero el baño.
@@ -428,16 +479,23 @@ for f in js/*.js; do node --check "$f"; done
 
 - [x] **Caras de la niña**: `girl-happy.png`, `girl-sleep.png`, `girl-sad.png` ✅ (2026-07-28).
 
-**Contenido de dress-up:**
-- [ ] Nuevas **cabezas** (orejas de conejo, gato, dino…) → slot `head`.
-- [ ] Nuevos **cuerpos/trajes** (vestido, overol…) → slot `body`.
-- [ ] **Gorros** y **accesorios** varios (lentes, moños…) → slots `hat`/`accessory`.
+**Contenido de dress-up** — ✅ **13 piezas nuevas ya registradas en el código**
+(2026-07-31): 3 cabezas, 4 cuerpos, 3 gorros y 3 collares. Sólo **falta el PNG**
+de cada una; el juego las muestra solas apenas el archivo exista.
+👉 **Checklist con nombre de archivo y prompt: `tools/art-prompts.md` §0.**
+
+- [ ] `head-gato` · `head-dino` · `head-oso` → slot `head`.
+- [ ] `body-vestido` · `body-pijama` · `body-dino` · `body-overol` → slot `body`.
+- [ ] `hat-gorro` · `hat-corona` · `hat-flor` → slot `hat`.
+- [ ] `necklace-corazon` · `necklace-perla` · `necklace-estrella` → slot `accessory`.
+      ⚠️ Su anchor (`A_NECK`) es el **único sin calibrar**: cuando llegue el
+      primer collar, correr `tools/preview.py` y ajustarlo.
 
 **Ideas futuras pedidas por el dueño:**
-- [ ] **Collares** 📿 — van al slot `accessory` (ya existe y está vacío), con su
-      anchor sobre el pecho/cuello. Prompts en `tools/art-prompts.md`.
-- [x] **Mascotas** 🐾 ✅ (2026-07-31) — `js/buddies.js`, ver *Mascotas*. Pendiente
-      opcional: reemplazar los emoji por PNG (campo `img`, ya soportado).
+- [x] **Collares** 📿 ✅ registrados (falta el arte, ver arriba).
+- [x] **Mascotas** 🐾 ✅ (2026-07-31) — `js/buddies.js`, ver *Mascotas*.
+- [ ] Ilustraciones de las mascotas (4 ánimos × 4 mascotas, ninguna obligatoria;
+      hoy son emoji). Prompts en `tools/art-prompts.md` §2.6.
 - [x] Grabaciones reales de voz ✅ (2026-07-28) — ver *Voces*.
 - [x] **Hosting estático propio** ✅ (2026-07-31) — GitHub Pages en
       https://jonadrar.github.io/gugugaga/ ; habilita micrófono y notificaciones.
