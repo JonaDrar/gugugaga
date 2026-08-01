@@ -1,0 +1,66 @@
+// Service worker: cache the app shell so Gugugaga works offline
+// Bump CACHE whenever the shell changes — activate() drops every older cache.
+const CACHE = "gugugaga-v4";
+const ASSETS = [
+  "./",
+  "./index.html",
+  "./css/style.css",
+  "./js/save.js",
+  "./js/store.js",
+  "./js/audio.js",
+  "./js/voice.js",
+  "./js/cosmetics.js",
+  "./js/foods.js",
+  "./js/care.js",
+  "./js/notify.js",
+  "./js/health.js",
+  "./js/minigames.js",
+  "./js/scene.js",
+  "./js/pet.js",
+  "./js/game.js",
+  "./manifest.webmanifest",
+  "./assets/icons/favicon.svg",
+];
+
+self.addEventListener("install", (e) => {
+  e.waitUntil(
+    caches.open(CACHE).then((c) => c.addAll(ASSETS)).catch(() => {})
+  );
+  self.skipWaiting();
+});
+
+self.addEventListener("activate", (e) => {
+  e.waitUntil(
+    caches.keys().then((keys) =>
+      Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)))
+    )
+  );
+  self.clients.claim();
+});
+
+// Tapping a notification focuses the game instead of opening a second copy.
+self.addEventListener("notificationclick", (e) => {
+  e.notification.close();
+  e.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((list) => {
+      for (const c of list) if ("focus" in c) return c.focus();
+      if (self.clients.openWindow) return self.clients.openWindow("./");
+    })
+  );
+});
+
+self.addEventListener("fetch", (e) => {
+  if (e.request.method !== "GET") return;
+  e.respondWith(
+    caches.match(e.request).then((cached) => {
+      if (cached) return cached;
+      return fetch(e.request)
+        .then((res) => {
+          const copy = res.clone();
+          caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
+          return res;
+        })
+        .catch(() => cached);
+    })
+  );
+});

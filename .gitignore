@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+.DS_Store
+
+# Local scratch renders from tools/preview.py
+assets/art/_preview.png

@@ -1,0 +1,16 @@
+{
+  "name": "Gugugaga — Cuida a tu pingüino",
+  "short_name": "Gugugaga",
+  "description": "Cuida a tu bebé pingüino Gugugaga: dale de comer, juega, báñalo y déjalo dormir.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#a7e0ff",
+  "theme_color": "#8fd3ff",
+  "icons": [
+    { "src": "assets/icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "assets/icons/icon-512-maskable.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

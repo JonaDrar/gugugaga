@@ -1,0 +1,245 @@
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no" />
+<meta name="theme-color" content="#8fd3ff" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="Gugugaga" />
+<link rel="manifest" href="manifest.webmanifest" />
+<link rel="apple-touch-icon" href="assets/icons/icon-180.png" />
+<link rel="icon" href="assets/icons/favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="css/style.css" />
+<title>Gugugaga — Cuida a tu pingüino</title>
+
+<div id="app">
+  <header id="topbar">
+    <div class="pet-name">
+      <span id="petName">Gugugaga</span>
+      <span id="petMood" class="mood">😊</span>
+    </div>
+    <div class="top-right">
+      <button id="starsBtn" class="stars-chip" aria-label="Tarjeta del día">
+        <span>⭐</span><span id="starsVal">0</span>
+      </button>
+      <button id="muteBtn" class="mini-btn" aria-label="Silenciar">🔊</button>
+      <div class="pet-age">
+        <span class="age-label">Día</span>
+        <span id="petDay">1</span>
+      </div>
+    </div>
+  </header>
+
+  <section id="stats">
+    <div class="stat" data-stat="hunger"><span class="stat-icon">🍼</span><div class="bar"><div class="bar-fill" id="bar-hunger"></div></div></div>
+    <div class="stat" data-stat="happiness"><span class="stat-icon">🎈</span><div class="bar"><div class="bar-fill" id="bar-happiness"></div></div></div>
+    <div class="stat" data-stat="energy"><span class="stat-icon">⚡</span><div class="bar"><div class="bar-fill" id="bar-energy"></div></div></div>
+    <div class="stat" data-stat="cleanliness"><span class="stat-icon">🛁</span><div class="bar"><div class="bar-fill" id="bar-cleanliness"></div></div></div>
+    <!-- Cariño: the one meter that only ever goes up. It unlocks wardrobe pieces. -->
+    <div class="love-row">
+      <span class="love-heart">❤️</span>
+      <div class="love-bar"><div class="love-fill" id="loveFill"></div></div>
+      <span class="love-goal" id="loveGoal">0</span>
+    </div>
+  </section>
+
+  <main id="scene">
+    <div id="sceneDeco" class="scene-deco"></div>
+
+    <div class="side-btns">
+      <button id="closetBtn" class="side-btn" aria-label="Vestuario">🎩</button>
+      <button id="sceneBtn" class="side-btn" aria-label="Lugar">🏞️</button>
+      <button id="photoBtn" class="side-btn" aria-label="Sacar foto">📸</button>
+      <button id="albumBtn" class="side-btn" aria-label="Álbum de comidas">📖</button>
+      <button id="voiceBtn" class="side-btn" aria-label="Voces">🎤</button>
+      <button id="bellBtn" class="side-btn" aria-label="Avisos">🔔</button>
+    </div>
+
+    <div id="speech" class="speech hidden"><span id="speechText">gugu gaga~</span></div>
+
+    <div id="petStage">
+      <div id="char" data-state="idle">
+        <img id="charImg" class="char-img" src="assets/art/girl-base.png" alt="Gugugaga" draggable="false" />
+        <div id="charAcc" class="char-acc"></div>
+        <!-- lightweight expression tells layered over the 3D art -->
+        <div id="charFxTears" class="char-tears">
+          <span></span><span></span>
+        </div>
+        <div id="charFxZzz" class="char-zzz">z<span>Z</span><span>Z</span></div>
+        <!-- dirt + flies, drawn with CSS only (no artwork needed) -->
+        <div id="charFxDirt" class="char-dirt">
+          <span class="dirt d1"></span><span class="dirt d2"></span><span class="dirt d3"></span>
+          <span class="dirt d4"></span><span class="dirt d5"></span><span class="dirt d6"></span>
+          <span class="fly f1"></span><span class="fly f2"></span><span class="fly f3"></span>
+          <span class="stink s1">〰</span><span class="stink s2">〰</span>
+        </div>
+      </div>
+      <div id="fx"></div>
+    </div>
+
+    <!-- the bath mini-game plays inside the scene, so she still sees Gugugaga -->
+    <div id="bubbleGame" class="bubbles hidden"></div>
+
+    <!-- badge shown while she is ill -->
+    <div id="sickBadge" class="sick-badge hidden"></div>
+  </main>
+
+  <nav id="actions">
+    <button class="action" data-action="feed"><span class="emoji">🍼</span><span class="label">Comida</span></button>
+    <button class="action" data-action="play"><span class="emoji">🎈</span><span class="label">Jugar</span></button>
+    <button class="action" data-action="sleep"><span class="emoji">😴</span><span class="label">Dormir</span></button>
+    <button class="action" data-action="clean"><span class="emoji">🛁</span><span class="label">Baño</span></button>
+    <button class="action action-doctor hidden" data-action="doctor"><span class="emoji">🩺</span><span class="label">Doctor</span></button>
+  </nav>
+
+  <!-- ============ Wardrobe / Closet ============ -->
+  <div id="closet" class="closet hidden">
+    <div class="closet-panel">
+      <div class="closet-head">
+        <h2>Vestir a Gugugaga</h2>
+        <button id="closetClose" class="closet-close" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="closet-tabs">
+        <button class="closet-tab active" data-tab="head">🎭 Cabeza</button>
+        <button class="closet-tab" data-tab="body">👕 Cuerpo</button>
+        <button class="closet-tab" data-tab="hat">🎩 Gorro</button>
+        <button class="closet-tab" data-tab="accessory">🎀 Extra</button>
+      </div>
+      <div id="closetItems" class="closet-items"></div>
+      <p id="closetSoon" class="closet-soon"></p>
+    </div>
+  </div>
+
+  <!-- ============ Food tray ============ -->
+  <div id="tray" class="sheet hidden">
+    <div class="sheet-panel">
+      <div class="sheet-head">
+        <h2>¿Qué le damos?</h2>
+        <button class="sheet-close" data-close="tray" aria-label="Cerrar">✕</button>
+      </div>
+      <div id="trayItems" class="food-grid"></div>
+    </div>
+  </div>
+
+  <!-- ============ Food album ============ -->
+  <div id="album" class="sheet hidden">
+    <div class="sheet-panel">
+      <div class="sheet-head">
+        <h2>Álbum de comidas</h2>
+        <button class="sheet-close" data-close="album" aria-label="Cerrar">✕</button>
+      </div>
+      <p class="sheet-note" id="albumProgress"></p>
+      <div id="albumItems" class="food-grid"></div>
+    </div>
+  </div>
+
+  <!-- ============ Scenes ============ -->
+  <div id="scenes" class="sheet hidden">
+    <div class="sheet-panel">
+      <div class="sheet-head">
+        <h2>¿A dónde vamos?</h2>
+        <button class="sheet-close" data-close="scenes" aria-label="Cerrar">✕</button>
+      </div>
+      <div id="sceneItems" class="closet-items"></div>
+    </div>
+  </div>
+
+  <!-- ============ Photo mode ============ -->
+  <div id="photo" class="sheet hidden">
+    <div class="sheet-panel">
+      <div class="sheet-head">
+        <h2>📸 Sacar foto</h2>
+        <button class="sheet-close" data-close="photo" aria-label="Cerrar">✕</button>
+      </div>
+      <p class="sheet-note">Tocá la foto para pegar el sticker elegido.</p>
+      <div class="photo-wrap"><canvas id="photoCanvas" class="photo-canvas"></canvas></div>
+      <div id="stickerRow" class="sticker-row"></div>
+      <div class="sheet-actions">
+        <button id="photoUndo" class="btn">↩️ Borrar sticker</button>
+        <button id="photoSave" class="btn btn-main">💾 Guardar</button>
+        <button id="photoDownload" class="btn">⬇️ Descargar</button>
+      </div>
+      <div id="photoGallery" class="gallery"></div>
+    </div>
+  </div>
+
+  <!-- ============ Play: mini-game chooser + arena ============ -->
+  <div id="play" class="sheet hidden">
+    <div class="sheet-panel">
+      <div class="sheet-head">
+        <h2 id="playTitle">¿A qué jugamos?</h2>
+        <button class="sheet-close" data-close="play" aria-label="Cerrar">✕</button>
+      </div>
+      <div id="playChooser" class="closet-items"></div>
+      <div id="playArea" class="play-area hidden"></div>
+    </div>
+  </div>
+
+  <!-- ============ Doctor ============ -->
+  <div id="doctor" class="sheet hidden">
+    <div class="sheet-panel">
+      <div class="sheet-head">
+        <h2>🩺 En el doctor</h2>
+        <button class="sheet-close" data-close="doctor" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="doc-card">
+        <div class="doc-emoji" id="docEmoji">🤒</div>
+        <div>
+          <div class="doc-title" id="docTitle"></div>
+          <div class="doc-cause" id="docCause"></div>
+        </div>
+      </div>
+      <p class="doc-explain" id="docExplain"></p>
+      <button id="docTreat" class="btn btn-main doc-treat"></button>
+      <p class="doc-advice hidden" id="docAdvice"></p>
+    </div>
+  </div>
+
+  <!-- ============ Daily care card (stars) ============ -->
+  <div id="stars" class="sheet hidden">
+    <div class="sheet-panel">
+      <div class="sheet-head">
+        <h2>⭐ Tarjeta del día</h2>
+        <button class="sheet-close" data-close="stars" aria-label="Cerrar">✕</button>
+      </div>
+      <div class="stars-summary">
+        <div><span class="big" id="starsTotal">0</span><span class="small">estrellas</span></div>
+        <div><span class="big" id="starsStreak">0</span><span class="small">días seguidos 🔥</span></div>
+      </div>
+      <p class="sheet-note">Las estrellas se ganan al terminar el día, cuidándola bien. ¡No se consiguen tocando!</p>
+      <div id="goalList" class="goal-list"></div>
+      <p class="sheet-note" id="starsNext"></p>
+    </div>
+  </div>
+
+  <!-- ============ Voice recorder ============ -->
+  <div id="voice" class="sheet hidden">
+    <div class="sheet-panel">
+      <div class="sheet-head">
+        <h2>🎤 Sus voces</h2>
+        <button class="sheet-close" data-close="voice" aria-label="Cerrar">✕</button>
+      </div>
+      <p class="sheet-note" id="voiceNote"></p>
+      <div id="voiceItems" class="voice-list"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+</div>
+
+<script src="js/save.js"></script>
+<script src="js/store.js"></script>
+<script src="js/audio.js"></script>
+<script src="js/voice.js"></script>
+<script src="js/cosmetics.js"></script>
+<script src="js/foods.js"></script>
+<script src="js/care.js"></script>
+<script src="js/notify.js"></script>
+<script src="js/health.js"></script>
+<script src="js/scene.js"></script>
+<script src="js/minigames.js"></script>
+<script src="js/pet.js"></script>
+<script src="js/game.js"></script>
+<script>
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+    window.addEventListener("load", () => navigator.serviceWorker.register("sw.js").catch(() => {}));
+  }
+</script>
