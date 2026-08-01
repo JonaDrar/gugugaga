@@ -317,6 +317,38 @@ tiene "none", muestra un aviso de "próximamente".
 
 ## Compilar, probar y publicar
 
+### 🌐 Sitio en vivo — https://jonadrar.github.io/gugugaga/
+
+Ese es el juego **de verdad**: PWA completa, servida por **GitHub Pages** desde
+la rama `main` del repo `JonaDrar/gugugaga` (carpeta raíz). Deployar = `git push`:
+
+```
+git push          # Pages reconstruye solo, ~1 min
+```
+
+Es https propio y sin iframe, así que **acá sí funcionan el micrófono (voces) y
+las notificaciones**, cosa que el link de Artifact no permite.
+
+**Instalar en el iPad:** abrir https://jonadrar.github.io/gugugaga/ en **Safari**
+→ Compartir → "Añadir a pantalla de inicio". Se abre a pantalla completa
+(`display: standalone`) y funciona offline gracias al service worker.
+El ícono de la pantalla de inicio sale de `assets/icons/` (ver abajo).
+
+> Si cambiás archivos del *shell* (html/css/js), **subí el número de `CACHE` en
+> `sw.js`** o los iPads ya instalados seguirán con la versión vieja en caché.
+
+### Íconos PWA
+
+```
+python3 tools/make_icons.py
+```
+Genera `icon-192/512/512-maskable/180.png` en `assets/icons/` componiendo las
+mismas capas que usa el juego (vía `tools/preview.py`), recortadas a la cara —
+un cuerpo entero a 192px no se lee en una pantalla de inicio. Si cambia el look
+por defecto, volvé a correrlo.
+
+### Link de Artifact (preview rápido, opcional)
+
 **Compilar el archivo único** (inlinea css+js y embebe las imágenes, reducidas a
 720px solo para el link; el proyecto conserva la resolución full):
 ```
@@ -324,18 +356,15 @@ python3 build.py
 # → escribe el .html de preview en el scratchpad de la sesión (ver la ruta que imprime)
 ```
 
-**Publicar el link (Artifact):** el asistente publica ese archivo con la tool
-`Artifact` (mismo `file_path` → mismo URL). URL actual del juego:
-`https://claude.ai/code/artifact/40b2ecc8-d4ac-4b64-a2c9-74fecfb92786`
+El asistente publica ese archivo con la tool `Artifact` (mismo `file_path` →
+mismo URL): `https://claude.ai/code/artifact/40b2ecc8-d4ac-4b64-a2c9-74fecfb92786`
+Sirve para mirar rápido, **no** para jugar en serio (sin micrófono ni notificaciones).
 
 **Probar local en el navegador:**
 ```
 python3 -m http.server 4173 --directory .
 # abre http://localhost:4173/index.html
 ```
-
-**Instalar en iPad:** abrir el link del Artifact en Safari → Compartir →
-"Añadir a pantalla de inicio".
 
 **Chequeo de sintaxis JS antes de publicar:**
 ```
@@ -359,11 +388,11 @@ for f in js/*.js; do node --check "$f"; done
 - [ ] **Mascotas** 🐾 — compañero decorativo y reactivo en la escena, **sin barra
       propia** (darle necesidades duplicaría la tarea diaria).
 - [x] Grabaciones reales de voz ✅ (2026-07-28) — ver *Voces*.
-- [ ] **Hosting estático propio** (GitHub Pages / Netlify) — necesario para que el
-      micrófono funcione de verdad; el iframe del Artifact probablemente lo bloquee.
+- [x] **Hosting estático propio** ✅ (2026-07-31) — GitHub Pages en
+      https://jonadrar.github.io/gugugaga/ ; habilita micrófono y notificaciones.
 - [ ] Ponerle nombre ella misma (`state.name` ya existe, falta la UI para editarlo).
 - [ ] Color de ojos (difícil en 3D porque va "horneado"; requeriría variantes de imagen).
-- [ ] Íconos PWA definitivos (hoy solo `favicon.svg`; faltan `icon-192/512/180.png`).
+- [x] Íconos PWA definitivos ✅ (2026-07-31) — `tools/make_icons.py`.
 
 ---
 
