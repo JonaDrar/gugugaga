@@ -1,6 +1,6 @@
 // Service worker: cache the app shell so Gugugaga works offline
 // Bump CACHE whenever the shell changes — activate() drops every older cache.
-const CACHE = "gugugaga-v6";
+const CACHE = "gugugaga-v7";
 const ASSETS = [
   "./",
   "./index.html",
@@ -60,8 +60,15 @@ self.addEventListener("fetch", (e) => {
       if (cached) return cached;
       return fetch(e.request)
         .then((res) => {
-          const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
+          // SÓLO se cachean respuestas buenas. Antes se guardaba cualquier cosa,
+          // incluidos los 404 de las piezas de arte que todavía no existen: una
+          // vez cacheado ese 404, agregar el PNG después NO servía de nada en un
+          // iPad ya instalado — la pieza no aparecía nunca. Las opacas (CORS)
+          // tampoco sirven: no se puede saber si salieron bien.
+          if (res && res.ok && res.type !== "opaque") {
+            const copy = res.clone();
+            caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
+          }
           return res;
         })
         .catch(() => cached);

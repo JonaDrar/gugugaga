@@ -179,6 +179,18 @@ Funciones: `GG.pieceHasArt` / `GG.availablePieces` / `GG.pieceSources`
 (`cosmetics.js`), `GG.buddyArtSrc` / `GG.buddyArtSources` (`buddies.js`),
 `GG.exprSrc` / `GG.exprSources` (`cosmetics.js`).
 
+**Dos detalles que costaron plata en bytes y conviene no deshacer:**
+
+1. **Las sondas usan `fetch(src, {method:'HEAD'})`, no un `<img>`.** Son ~33
+   archivos posibles y GitHub Pages contesta cada 404 con una página de ~9 KB:
+   con `<img>` eran **~266 KB tirados en cada apertura del juego**. Con HEAD el
+   cuerpo viene vacío. Si `fetch` falla (sin conexión) no se marca nada como
+   faltante — mejor reintentar después que esconderle la ropa por estar offline.
+2. **El service worker sólo cachea respuestas `res.ok`.** Antes guardaba
+   cualquier cosa, incluidos esos 404. Un 404 cacheado es una trampa: agregar el
+   PNG después **no servía de nada** en un iPad ya instalado, porque el SW
+   seguía sirviendo el 404 viejo y la pieza no aparecía nunca.
+
 ### Comidas (`js/foods.js`)
 Cada comida tiene `taste`: `fav` 😍 / `ok` 🙂 / `yuck` 😝. La que no le gusta es
 **graciosa, nunca triste**: casi no penaliza y siempre da una reacción cómica

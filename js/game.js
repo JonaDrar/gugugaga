@@ -132,19 +132,19 @@
   // PNG puede no existir todavía. Se prueba cada archivo al arrancar y lo que
   // falta simplemente no se ofrece — así generar arte nunca requiere tocar
   // código, y nada aparece roto mientras tanto.
-  GG.pieceSources().forEach((src) => {
-    const probe = new Image();
-    probe.addEventListener("error", () => {
-      GG.markPieceMissing(src);
-      if (!el.closet.classList.contains("hidden")) openCloset();
-    });
-    probe.src = src;
-  });
-  GG.buddyArtSources().forEach((src) => {
-    const probe = new Image();
-    probe.addEventListener("error", () => GG.markBuddyArtMissing(src));
-    probe.src = src;
-  });
+  //
+  // Se usa HEAD y no un <img>: son ~29 archivos posibles y GitHub Pages
+  // responde cada 404 con una página de ~9 KB, o sea 266 KB tirados en CADA
+  // apertura del juego. Con HEAD el cuerpo viene vacío y el costo es ~0.
+  // Si `fetch` falla (sin conexión), no se marca nada como faltante: mejor
+  // reintentar en la próxima apertura que esconderle la ropa por estar offline.
+  function probeArt(src, onMissing) {
+    fetch(src, { method: "HEAD" })
+      .then((res) => { if (!res.ok) onMissing(); })
+      .catch(() => { /* sin red: se reintenta al abrir de nuevo */ });
+  }
+  // Las sondas se lanzan al final del archivo (buscar `probeArt(`), cuando ya
+  // existe todo lo que sus callbacks necesitan tocar.
 
   // All heart costs in the catalog, ascending — drives the "next unlock" goal.
   function thresholds() {
@@ -1047,6 +1047,22 @@
   });
 
   render();
+
+  // Averiguar qué arte existe hoy. Va acá abajo, y no junto a probeArt(), porque
+  // los callbacks tocan `Buddy` y el clóset: recién a esta altura están armados.
+  GG.pieceSources().forEach((src) =>
+    probeArt(src, () => {
+      GG.markPieceMissing(src);
+      if (!el.closet.classList.contains("hidden")) openCloset();
+    })
+  );
+  GG.buddyArtSources().forEach((src) =>
+    probeArt(src, () => {
+      GG.markBuddyArtMissing(src);
+      Buddy.render();
+    })
+  );
+
   // She may have fallen ill, or a day may have rolled over, while the app was
   // closed — report both once, on arrival.
   if (bootHealth.dayEnd) celebrateDay(bootHealth.dayEnd);
