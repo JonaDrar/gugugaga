@@ -121,7 +121,14 @@
       { id: "conejo", label: "Conejo", preview: "🐰", love: 45, img: "assets/art/body-conejo.png", anchor: A_BODY },
       { id: "dino", label: "Dino", preview: "🦕", love: 55, img: "assets/art/body-dino.png", anchor: A_BODY },
       { id: "overol", label: "Overol", preview: "👖", love: 70, img: "assets/art/body-overol.png", anchor: A_BODY },
-      { id: "miku", label: "Diva", preview: "🎤", love: 70, img: "assets/art/body-miku.png", anchor: A_BODY },
+      // Anchor propio: para que las botas no dejaran ver los pies de la niña
+      // hubo que pedir las piernas juntas, y salieron más largas que el resto
+      // de los cuerpos — con A_BODY sus pies caían al 103% del stage y se
+      // hundía bajo la línea del piso donde se paran las mascotas. Este está
+      // resuelto para que el CUELLO y los PIES caigan donde los del pingüino
+      // (45.6% y 99%); el traje queda un 8% más angosto, que no se nota.
+      { id: "miku", label: "Diva", preview: "🎤", love: 70, img: "assets/art/body-miku.png",
+        anchor: { top: 34.1, left: 15, width: 70.1 } },
     ],
     hat: [
       { id: "none", label: "Ninguno", preview: "🚫" },

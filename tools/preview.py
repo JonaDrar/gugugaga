@@ -51,7 +51,7 @@ CATALOG = {
         "conejo": ("body-conejo.png", A_BODY),
         "dino": ("body-dino.png", A_BODY),
         "overol": ("body-overol.png", A_BODY),
-        "miku": ("body-miku.png", A_BODY),
+        "miku": ("body-miku.png", {"top": 34.1, "left": 15, "width": 70.1}),
     },
     "head": {
         "penguin": ("head-penguin.png", A_HEAD),
