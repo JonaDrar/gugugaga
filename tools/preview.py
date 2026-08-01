@@ -39,7 +39,9 @@ CATALOG = {
     "body": {
         "penguin": ("body-penguin.png", A_BODY),
         "vestido": ("body-vestido.png", A_BODY),
+        "gato": ("body-gato.png", A_BODY),
         "pijama": ("body-pijama.png", A_BODY),
+        "conejo": ("body-conejo.png", A_BODY),
         "dino": ("body-dino.png", A_BODY),
         "overol": ("body-overol.png", A_BODY),
     },

@@ -1,6 +1,6 @@
 // Service worker: cache the app shell so Gugugaga works offline
 // Bump CACHE whenever the shell changes — activate() drops every older cache.
-const CACHE = "gugugaga-v7";
+const CACHE = "gugugaga-v8";
 const ASSETS = [
   "./",
   "./index.html",

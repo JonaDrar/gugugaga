@@ -69,21 +69,28 @@ no tiene archivo y lo muestra solo apenas el PNG aparece en `assets/art/`:
 
 **Ropa** (§2.1–2.4) — se desbloquean con ❤️ en ese orden:
 
-| archivo | slot | ❤️ | prompt |
-|---|---|---|---|
-| `head-gato.png` | cabeza | 20 | §2.1 |
-| `head-dino.png` | cabeza | 50 | §2.1 |
-| `head-oso.png` | cabeza | 65 | §2.1 |
-| `body-vestido.png` | cuerpo | 25 | §2.2 |
-| `body-pijama.png` | cuerpo | 40 | §2.2 |
-| `body-dino.png` | cuerpo | 55 | §2.2 |
-| `body-overol.png` | cuerpo | 70 | §2.2 |
-| `hat-gorro.png` | gorro | 30 | §2.3 |
-| `hat-corona.png` | gorro | 45 | §2.3 |
-| `hat-flor.png` | gorro | 60 | §2.3 |
-| `necklace-corazon.png` | extra | 20 | §2.4 |
-| `necklace-perla.png` | extra | 40 | §2.4 |
-| `necklace-estrella.png` | extra | 55 | §2.4 |
+| archivo | slot | ❤️ | prompt | |
+|---|---|---|---|---|
+| `head-gato.png` | cabeza | 20 | §2.1 | ✅ listo |
+| `head-dino.png` | cabeza | 50 | §2.1 | |
+| `head-oso.png` | cabeza | 65 | §2.1 | |
+| `body-vestido.png` | cuerpo | 25 | §2.2 | |
+| `body-gato.png` | cuerpo | 30 | **§2.2-bis** | ← completa el gato 🐱 |
+| `body-pijama.png` | cuerpo | 40 | §2.2 | |
+| `body-conejo.png` | cuerpo | 45 | **§2.2-bis** | ← completa el conejo 🐰 |
+| `body-dino.png` | cuerpo | 55 | **§2.2-bis** | ← completa el dino 🦕 |
+| `body-overol.png` | cuerpo | 70 | §2.2 | |
+| `hat-gorro.png` | gorro | 30 | §2.3 | |
+| `hat-corona.png` | gorro | 45 | §2.3 | |
+| `hat-flor.png` | gorro | 60 | §2.3 | |
+| `necklace-corazon.png` | extra | 20 | §2.4 | |
+| `necklace-perla.png` | extra | 40 | §2.4 | |
+| `necklace-estrella.png` | extra | 55 | §2.4 | |
+
+**Los cuerpos de animal van costeados justo por encima de su capucha** (gato
+20→30, conejo 35→45, dino 50→55): el disfraz se completa poco después de
+conseguir la cabeza. Andar con cabeza de gato y cuerpo de pingüino por semanas
+no es un premio, es un pendiente.
 
 **Mascotas** (§2.6) — 4 ánimos × 4 mascotas, pero **ninguno es obligatorio**:
 `buddy-<mascota>-<ánimo>.png` con mascota ∈ `pollito · gatito · perrito · dino`
@@ -178,14 +185,61 @@ white tights with little black shoes`.
 covered in small white cloud and yellow star patterns, with a soft white collar
 and white cuffs`.
 
-**`body-dino.png` 🦕** — `<PRENDA>` = `a bright mint green dinosaur costume
-onesie with a pale yellow belly panel, a row of small rounded pastel-yellow
-spikes down the back, and chunky green three-toed feet`. *(Combina con
-`head-dino.png` para el disfraz completo.)*
-
 **`body-overol.png` 👖** — `<PRENDA>` = `light blue denim dungarees with two
 shoulder straps and a front pocket, worn over a white long-sleeve t-shirt, with
 little red sneakers`.
+
+### 2.2-bis Cuerpos de ANIMAL (los que hacen juego con una capucha)
+
+Estos son distintos a los de §2.2 y **necesitan DOS imágenes de referencia**:
+
+1. **`assets/art/body-penguin.png`** → manda la silueta, el largo y el cuello.
+2. **La capucha que tiene que hacer juego** (`head-gato.png`, `head-bunny.png`,
+   `head-dino.png`) → manda el **color y la textura**, que es lo único que hace
+   que se lea como un disfraz entero y no como dos animales pegados.
+
+El pingüino ya está resuelto (cabeza + cuerpo), así que este molde es para
+cerrar los otros: **gato**, **conejo** y **dino**.
+
+```
+Using the FIRST attached image as the reference for SHAPE and the SECOND
+attached image as the reference for COLOR AND MATERIAL, generate a plush
+costume BODY (torso, arms and legs, NO head).
+From the FIRST image keep: the EXACT same silhouette proportions, the same
+size, the same camera framing, the same neck opening position and size, the
+same 3D Nendoroid figurine style, the same soft plush fabric texture and the
+same soft frontal lighting.
+From the SECOND image keep: the EXACT same <COLOR> plush color and the same
+material finish, so that the body and the hood read as ONE single costume.
+Details for this costume: <DETALLES>.
+Do not change the size or position of the neck opening. No head, no face,
+no character, no ears. Isolated object, centered, transparent background,
+no shadow, no text.
+```
+
+**`body-gato.png` 🐱** — 2ª referencia `head-gato.png`.
+`<COLOR>` = `soft cream and orange tabby`, `<DETALLES>` = `a cream belly panel,
+soft orange tabby stripes on the arms and on the back, small rounded cream paws
+at the ends of the arms, chunky cream feet, and a thick striped orange cat tail
+curving out to one side`.
+
+**`body-conejo.png` 🐰** — 2ª referencia `head-bunny.png`.
+`<COLOR>` = `soft white`, `<DETALLES>` = `a very light pink belly panel, small
+rounded white paws at the ends of the arms, chunky white feet, and a small round
+fluffy white bunny tail`.
+
+**`body-dino.png` 🦕** — 2ª referencia `head-dino.png`.
+`<COLOR>` = `bright mint green`, `<DETALLES>` = `a pale yellow belly panel, a row
+of small rounded pastel-yellow spikes down the back, chunky green three-toed
+feet, and a thick tapering green dinosaur tail curving out to one side`.
+
+> **La cola:** el pingüino no tiene, así que es lo único que puede salirse del
+> molde. Si queda muy larga y se corta en el borde del cuadro, pedila más corta
+> y pegada al cuerpo — **no** agrandes el anchor, porque eso descoloca el cuello.
+> Verificá el resultado con:
+> ```
+> python3 tools/preview.py     # editá LOOK arriba del archivo
+> ```
 
 ### 2.3 Gorros → slot `hat`
 
