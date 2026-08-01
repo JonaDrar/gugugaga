@@ -23,7 +23,7 @@
   // consistent daily care (js/care.js), not from tapping.
   GG.SCENES = [
     {
-      id: "cielo", label: "Cielo", preview: "☁️", img: null,
+      id: "cielo", label: "Cielo", preview: "☁️", img: "assets/art/bg-cielo.webp",
       c: ["#a7e0ff", "#d9f2ff", "#bfeaff", "#a9e0fb"],
       deco: [
         { e: "☁️", left: 8, top: 10, size: 42 },
@@ -32,7 +32,7 @@
       ],
     },
     {
-      id: "cuarto", label: "Cuarto", preview: "🧸", img: null, stars: 2,
+      id: "cuarto", label: "Cuarto", preview: "🧸", img: "assets/art/bg-cuarto.webp", stars: 2,
       c: ["#ffe3ef", "#fff5f9", "#e8c9a0", "#d3aa7c"],
       deco: [
         { e: "🪟", left: 10, top: 12, size: 46 },
@@ -41,7 +41,7 @@
       ],
     },
     {
-      id: "playa", label: "Playa", preview: "🏖️", img: null, stars: 5,
+      id: "playa", label: "Playa", preview: "🏖️", img: "assets/art/bg-playa.webp", stars: 5,
       c: ["#8fd8ff", "#dff4ff", "#ffe7b3", "#f3cd85"],
       deco: [
         { e: "☀️", left: 78, top: 8, size: 44 },
@@ -50,7 +50,7 @@
       ],
     },
     {
-      id: "jardin", label: "Jardín", preview: "🌷", img: null, stars: 9,
+      id: "jardin", label: "Jardín", preview: "🌷", img: "assets/art/bg-jardin.webp", stars: 9,
       c: ["#bfe9ff", "#e8f8ff", "#8fd97a", "#66bf58"],
       deco: [
         { e: "🦋", left: 74, top: 26, size: 32 },
@@ -73,9 +73,21 @@
     r.setProperty("--floor-bot", sc.c[3]);
     // Custom picture, if this scene has one. Missing files simply never paint,
     // leaving the gradient — no broken-image box.
-    r.setProperty("--scene-img", sc.img ? 'url("' + sc.img + '")' : "none");
+    //
+    // La ruta se pasa ABSOLUTA a propósito. Un `url()` dentro de una variable
+    // CSS se resuelve relativo a la HOJA DE ESTILOS donde se usa, no al
+    // documento: "assets/art/x.webp" terminaba pidiendo "css/assets/art/x.webp"
+    // y el fondo no aparecía nunca. `new URL(...)` lo resuelve contra la página,
+    // que además funciona igual servido desde un subdirectorio (GitHub Pages).
+    r.setProperty(
+      "--scene-img",
+      sc.img ? 'url("' + new URL(sc.img, document.baseURI).href + '")' : "none"
+    );
     if (!decoEl) return;
     decoEl.innerHTML = "";
+    // Los emoji decorativos eran el sustituto de no tener fondo dibujado. Con
+    // una foto de verdad estorban: nubes de emoji flotando sobre nubes pintadas.
+    if (sc.img) return;
     sc.deco.forEach((d) => {
       const s = document.createElement("span");
       s.className = "deco";
@@ -127,10 +139,12 @@
 
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      sc.deco.forEach((d) => {
-        ctx.font = d.size * 1.5 + "px serif";
-        ctx.fillText(d.e, (d.left / 100) * W, (d.top / 100) * H);
-      });
+      if (!sc.img) {
+        sc.deco.forEach((d) => {
+          ctx.font = d.size * 1.5 + "px serif";
+          ctx.fillText(d.e, (d.left / 100) * W, (d.top / 100) * H);
+        });
+      }
 
       // Character: square stage, same anchor math as the live game.
       const S = W * 0.78;
@@ -141,6 +155,14 @@
           try { ctx.drawImage(img, dx, dy, dw, dh); } catch (e) { /* ignore */ }
         }
       };
+      // Capas de atrás (pelo largo, cola) ANTES de la niña; el resto, después.
+      const layer = (im) => {
+        const top = parseFloat(im.style.top) || 0;
+        const left = parseFloat(im.style.left) || 0;
+        const w = parseFloat(im.style.width) || 100;
+        safe(im, x0 + (left / 100) * S, y0 + (top / 100) * S, (w / 100) * S, (w / 100) * S);
+      };
+      (charEls.backImgs || []).forEach(layer);
       safe(charEls.img, x0, y0, S, S);
       (charEls.accImgs || []).forEach((im) => {
         const top = parseFloat(im.style.top) || 0;

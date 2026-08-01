@@ -26,6 +26,7 @@ N = 1254  # native artwork square; anchors are % of this
 LOOK = {"body": "penguin", "head": "penguin", "accessory": None, "hat": "party"}
 LAYER_ORDER = ["body", "head", "accessory", "hat"]  # back -> front
 
+
 # --- catalog: mirror of js/cosmetics.js (file + anchor per piece) --------------
 # Las piezas cuyo PNG todavía no existe están declaradas igual: render() las
 # saltea si falta el archivo, así este script sirve para calibrar el anchor
@@ -37,6 +38,9 @@ A_HAT = {"top": -19, "left": 33, "width": 36}
 A_CORONA = {"top": -8, "left": 31.8, "width": 39}
 A_FLOR = {"top": -8.2, "left": 33.6, "width": 32.9}
 # Cada collar tiene el suyo: ver el comentario en js/cosmetics.js.
+
+# Capas que van DETRÁS de la niña (espejo de `imgBack` en js/cosmetics.js).
+BACK = {"head": {"miku": ("head-miku-back.png", A_HEAD)}}
 
 CATALOG = {
     "body": {
@@ -55,7 +59,7 @@ CATALOG = {
         "bunny": ("head-bunny.png", {"top": 0, "left": 21.8, "width": 56}),
         "dino": ("head-dino.png", A_HEAD),
         "oso": ("head-oso.png", A_HEAD),
-        "miku": ("head-miku.png", A_HEAD),
+        "miku": ("head-miku.png", {"top": 3, "left": 22.2, "width": 56}),
     },
     "accessory": {
         "corazon": ("necklace-corazon.png", {"top": 40.3, "left": 33.1, "width": 33.7}),
@@ -80,6 +84,14 @@ def paste(canvas, img, anchor):
 
 def render(look, bg=(206, 235, 255, 255), size=480, base=BASE):
     cv = Image.new("RGBA", (N, N), bg)
+    # Primero lo que va DETRÁS de la niña (pelo largo), después ella, después el
+    # resto de las capas. Mismo orden que el juego.
+    for slot, pieces in BACK.items():
+        pid = look.get(slot)
+        if pid in pieces:
+            fname, anchor = pieces[pid]
+            if (ART / fname).exists():
+                paste(cv, Image.open(ART / fname).convert("RGBA"), anchor)
     cv.alpha_composite(Image.open(ART / base).convert("RGBA"), (0, 0))
     for slot in LAYER_ORDER:
         pid = look.get(slot)

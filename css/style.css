@@ -160,7 +160,13 @@ body {
   -webkit-user-select: none;
   transition: filter .4s ease;
 }
-.char-acc { position: absolute; inset: 0; pointer-events: none; }
+/* Orden de pintado dentro de #char. La capa TRASERA existe para el pelo largo:
+   una peluca de una sola imagen no puede tapar el pelo de la niña por atrás Y
+   quedarle pegada a la cara por delante al mismo tiempo, así que se parte en
+   dos y la niña queda en el medio. */
+.char-back { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.char-img { position: relative; z-index: 1; }
+.char-acc { position: absolute; inset: 0; pointer-events: none; z-index: 2; }
 .acc-img { position: absolute; }
 
 /* lightweight expression tells over the 3D art.

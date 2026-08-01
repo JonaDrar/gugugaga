@@ -205,27 +205,58 @@ def _recipes():
     # obligarían a agrandar el cuadro y con él el hueco de la cara, que dejaría
     # de calzar con las expresiones. Cortas y gorditas es además como se ven en
     # las figuras chibi, así que no se pierde nada.
+    # --- traje de diva vocaloid (Miku) ---------------------------------------
+    # El pelo va en DOS imágenes, y esa es la parte importante. Una sola no
+    # puede a la vez tapar el pelo negro de la niña por atrás y quedarle pegada
+    # a la cara por delante: si se agranda para cubrir, le tapa los ojos; si se
+    # achica para no taparlos, le asoma el pelo negro. Partido en dos, la niña
+    # queda EN EL MEDIO y cada mitad hace una sola cosa.
+    #   head-miku-back.png -> el volumen y las coletas, detrás de ella
+    #   head-miku.png      -> flequillo, mechones laterales y auriculares, delante
+    # El prompt describe el DISEÑO en vez de nombrar al personaje: los modelos
+    # de imagen rechazan los nombres propios y describiéndolo sale igual.
+    r["head-miku-back"] = {
+        "refs": ["head-penguin.png"],
+        "prompt": (
+            "Using the attached image as reference, generate the BACK HAIR of a wig, to "
+            "be placed BEHIND a character's head. "
+            "It is a solid rounded mass of bright turquoise/aqua hair with soft visible "
+            "strands, filling the SAME outer silhouette as the hood in the reference — "
+            "the same size and the same outline — but with NO face opening and no hole: "
+            "it is completely solid, like the back of a head of hair seen from the front. "
+            "Add two thick turquoise twintails, one on each side, sticking out and hanging "
+            "down, each tied near the top with a black and hot-pink band. "
+            "Keep the twintails fully inside the frame. "
+            "No face, no head, no character, no body, no headset. "
+            "3D Nendoroid figurine style, glossy toy look, soft frontal lighting. "
+            "Isolated object, centered, transparent background, no shadow, no text."
+        ),
+    }
     r["head-miku"] = {
         "refs": ["head-penguin.png", "../../miku-referencias/e3b404m7t5.png.webp"],
         "prompt": (
-            "Using the FIRST attached image as the reference, generate a HAIR WIG that "
-            "has the EXACT SAME outer silhouette as that hood — the same size, the same "
-            "outline, the same rounded mass covering the top, the back and BOTH SIDES of "
-            "the head down past the chin — and the EXACT SAME round face opening in the "
-            "same position and the same size. "
-            "The ONLY thing that changes is what it is made of: instead of black plush "
-            "fabric it is now bright turquoise/aqua HAIR, with soft visible hair strands, "
-            "plus a straight turquoise fringe hanging over the top edge of the face "
-            "opening, ending just above where the eyes would be. "
-            "Remove the penguin face and beak completely. "
-            "Then add, on top of that same silhouette: two thick turquoise twintails, one "
-            "on each side, each tied at the top with a black and hot-pink band; and a "
-            "black futuristic headset over the ears with a hot-pink stripe and a small "
-            "microphone arm curving toward the mouth. Use the SECOND attached image only "
-            "as a colour and style guide for the hair, the bands and the headset. "
-            "Keep the twintails SHORT and chunky and FULLY inside the frame. "
-            "Do not change the size or position of the face opening. Do not shrink the "
-            "silhouette. No head inside the wig, no face, no character, no body. "
+            "Using the FIRST attached image as the reference, generate ONLY THE FRONT "
+            "PART of a turquoise hair wig, to be placed OVER a character's face. "
+            "It consists of: a LONG straight turquoise fringe that hangs DOWN and covers "
+            "the ENTIRE forehead, its bottom edge reaching all the way down to just above "
+            "the eyebrows — the fringe must overlap well into the top of the face opening, "
+            "not sit above it, so that no forehead and no hair of another colour is left "
+            "visible between the fringe and the eyes; and TWO THICK SIDE LOCKS of turquoise hair, "
+            "one on each side of the face, hanging straight DOWN PAST THE CHIN. "
+            "CRITICAL: each side lock must be as wide and reach as far out to the side as "
+            "the corresponding side of the hood in the reference image, at every height — "
+            "they have to cover the whole area between the face and the hood's outer edge, "
+            "so no hair of another colour could show at the sides or under the jaw. "
+            "The face area between the fringe and the two side locks stays EMPTY and "
+            "transparent — that is where the face shows through — and that opening must be "
+            "in the same position and the same size as the reference hood's face opening. "
+            "Also include a black futuristic headset over the ears with a hot-pink stripe "
+            "and a small microphone arm curving toward the mouth. "
+            "Do NOT draw the back or the top-back of the hair, and do NOT draw twintails: "
+            "those are a separate image. "
+            "Use the SECOND attached image only as a colour and style guide. "
+            "No face, no head, no character, no body. "
+            "3D Nendoroid figurine style, glossy toy look, soft frontal lighting. "
             "Isolated object, centered, transparent background, no shadow, no text."
         ),
     }
@@ -240,8 +271,13 @@ def _recipes():
             "same 3D Nendoroid figurine style and the same soft frontal lighting. "
             "The outfit: a light grey sleeveless top with a turquoise collar and a long "
             "turquoise necktie down the chest, black detached sleeves on both arms with a "
-            "turquoise band at the top, a short black pleated skirt with a thin turquoise "
-            "trim at the hem, and tall black thigh-high boots with turquoise trim. "
+            "turquoise band at the top, and a short black pleated skirt with a thin "
+            "turquoise trim at the hem. "
+            "CRITICAL — THE LEGS: tall black boots that COMPLETELY cover both legs from "
+            "the hem of the skirt all the way down to the feet, with NO gap and NO bare "
+            "skin anywhere between the skirt and the boots. The boots are thick and chunky "
+            "and cover the whole width of the legs, and the feet are fully enclosed in "
+            "them. Nothing of the legs or feet underneath may be visible. "
             "Chibi proportions: short and chunky limbs, not slender. "
             "Do not change the size or position of the neck opening. No head, no face, "
             "no hair, no character. Isolated object, centered, transparent background, "
@@ -266,6 +302,39 @@ def _recipes():
         ("necklace-estrella", "beaded rainbow necklace with a big yellow star pendant"),
     ]:
         r[name] = {"refs": [], "prompt": _NECK.format(d=det)}
+
+    # --- fondos de escenario ------------------------------------------------
+    # NO son piezas del personaje: son la foto completa del lugar. Verticales,
+    # opacos y en webp por peso. La composición está atada a cómo dibuja el
+    # juego: se pintan con `cover`, Gugugaga se para sobre el 60% de la altura
+    # y el tercio de abajo tiene que quedar despejado porque ahí van sus pies y
+    # las burbujas del baño. El centro también, o le tapa la cara.
+    _BG = (
+        "A cute empty {d} background for a children's game, vertical portrait "
+        "composition. Soft 3D toy-diorama look, pastel colors, gentle soft lighting, "
+        "matching a Nendoroid figurine world. The horizon sits about 60% down the "
+        "image. The bottom third is a clean simple floor with almost nothing on it. "
+        "The center of the image is open and uncluttered. Keep all important elements "
+        "away from the left and right edges. "
+        "No characters, no people, no animals, no text, no logos."
+    )
+    for name, det in [
+        ("bg-cielo", "sky world of soft fluffy clouds with a pastel rainbow to one "
+         "side and a fluffy cloud floor"),
+        ("bg-cuarto", "cozy kid bedroom with a big window on one side, shelves with "
+         "toys and books, and a warm rug on a wooden floor"),
+        ("bg-playa", "sunny tropical beach with palm trees at the sides, calm turquoise "
+         "sea at the horizon and clean smooth sand"),
+        # El jardín salió con el pasto apretado arriba y un piso pálido abajo:
+        # el molde dice "el tercio inferior es un suelo simple" y lo interpretó
+        # como interior. Para este hay que decir DE QUÉ es ese suelo.
+        ("bg-jardin", "flower garden seen from inside the garden, standing ON a lawn: "
+         "the entire bottom half of the image is short green grass, a low wooden fence "
+         "with bushes and colourful flowers runs along the far side at the horizon, "
+         "and there are flowers only at the far left and far right edges"),
+    ]:
+        r[name] = {"refs": [], "prompt": _BG.format(d=det),
+                   "size": "1024x1536", "background": "opaque", "format": "webp"}
 
     # --- mascotas: el `normal` es suelto, los otros van CON el normal de ref ---
     for bid, look in BUDDY_LOOK.items():
@@ -334,16 +403,23 @@ def generate(name, model, quality, size, out_path, key, timeout=300, clean_alpha
     if missing:
         return {"error": f"faltan las referencias: {', '.join(missing)}"}
 
+    # Las piezas del personaje son PNG cuadrados con alpha; los fondos de
+    # escenario son verticales, OPACOS y en webp (un PNG de 1024x1536 pesa
+    # varios MB y esto se descarga en un iPad). Cada receta puede pedir lo suyo.
     data = {
         "model": model,
         "prompt": rec["prompt"],
-        "size": size,
+        "size": rec.get("size", size),
         "quality": quality,
-        "background": "transparent",  # PNG con alpha: nada de croma verde
-        "output_format": "png",
+        "background": rec.get("background", "transparent"),
+        "output_format": rec.get("format", "png"),
         "n": "1",
     }
     halo = None
+    saved = None
+    # Un fondo opaco no tiene borde que limpiar.
+    if data["background"] != "transparent":
+        clean_alpha = False
     files = []
     if refs:
         # input_fidelity alto = respeta encuadre y escala del original, que es
@@ -386,8 +462,22 @@ def generate(name, model, quality, size, out_path, key, timeout=300, clean_alpha
     out_path.write_bytes(base64.b64decode(b64))
     if clean_alpha:
         halo = clean_halo(out_path)
+    # Los fondos vienen a ~1.3 MB cada uno. Son fotos, no arte con bordes duros:
+    # recomprimir a webp 80 les saca el 80% del peso sin diferencia visible, y
+    # esto se descarga en un iPad y se guarda en el cache offline.
+    if data["output_format"] == "webp":
+        saved = shrink_webp(out_path)
     return {"usage": j.get("usage"), "secs": time.time() - t0, "path": out_path,
-            "halo": halo if clean_alpha else None}
+            "halo": halo if clean_alpha else None, "shrunk": saved}
+
+
+def shrink_webp(path, quality=80):
+    """Recomprime un webp opaco. Devuelve (KB antes, KB después)."""
+    from PIL import Image
+
+    before = path.stat().st_size
+    Image.open(path).convert("RGB").save(path, "WEBP", quality=quality, method=6)
+    return (before / 1024, path.stat().st_size / 1024)
 
 
 def clean_halo(path, thresh=40):
@@ -464,7 +554,8 @@ def main():
         if run_total >= a.budget:
             print(f"⛔ corté: la corrida ya gastó USD {run_total:.3f}")
             break
-        out = pathlib.Path(a.out_dir) / f"{n}{a.suffix}.png"
+        ext = RECIPES[n].get("format", "png")
+        out = pathlib.Path(a.out_dir) / f"{n}{a.suffix}.{ext}"
         print(f"→ {n} ... ", end="", flush=True)
         res = generate(n, a.model, a.quality, a.size, out, key,
                        clean_alpha=not a.no_clean_alpha)
@@ -474,6 +565,8 @@ def main():
         c = cost_of(a.model, res["usage"], a.quality, a.size)
         run_total += c or 0
         print(f"ok  {res['secs']:.0f}s  USD {c:.4f}" if c else f"ok  {res['secs']:.0f}s")
+        if res.get("shrunk"):
+            print(f"   comprimido: {res['shrunk'][0]:.0f} KB → {res['shrunk'][1]:.0f} KB")
         if res.get("halo"):
             print(f"   halo semitransparente: {res['halo'][0]:.1f}% → {res['halo'][1]:.1f}%")
         print(f"   → {out}")

@@ -7,6 +7,7 @@
     char: $("char"),
     charImg: $("charImg"),
     charAcc: $("charAcc"),
+    charBack: $("charBack"),
     day: $("petDay"),
     name: $("petName"),
     mood: $("petMood"),
@@ -333,21 +334,29 @@
   function applyCosmetics() {
     const c = state.cosmetics || GG.DEFAULT_COSMETICS;
     el.charAcc.innerHTML = "";
+    el.charBack.innerHTML = "";
+    const put = (host, src, anchor, slot) => {
+      const img = document.createElement("img");
+      img.className = "acc-img acc-" + slot;
+      img.src = src;
+      img.draggable = false;
+      const a = anchor || {};
+      if (a.top != null) img.style.top = a.top + "%";
+      if (a.left != null) img.style.left = a.left + "%";
+      if (a.width != null) img.style.width = a.width + "%";
+      host.appendChild(img);
+    };
     GG.LAYER_ORDER.forEach((slot) => {
       const it = GG.findCosmetic(slot, c[slot]);
       // `pieceHasArt` evita el ícono de imagen rota si el PNG de una pieza
       // equipada desaparece (por ejemplo al borrarlo del repo).
-      if (it && it.img && GG.pieceHasArt(it)) {
-        const img = document.createElement("img");
-        img.className = "acc-img acc-" + slot;
-        img.src = it.img;
-        img.draggable = false;
-        const a = it.anchor || {};
-        if (a.top != null) img.style.top = a.top + "%";
-        if (a.left != null) img.style.left = a.left + "%";
-        if (a.width != null) img.style.width = a.width + "%";
-        el.charAcc.appendChild(img);
-      }
+      if (!it || !it.img || !GG.pieceHasArt(it)) return;
+      // Una pieza puede traer una SEGUNDA imagen que va detrás de la niña
+      // (`imgBack`): es lo que permite que una peluca tape el pelo por atrás
+      // sin tener que ser enorme por delante. Sigue siendo UNA sola pieza en
+      // el clóset — la nena elige "Diva" y se ponen las dos capas.
+      if (it.imgBack) put(el.charBack, it.imgBack, it.anchorBack || it.anchor, slot + "-back");
+      put(el.charAcc, it.img, it.anchor, slot);
     });
     updateCharImage();
   }
@@ -738,6 +747,7 @@
     GG.Photo.draw(el.photoCanvas, state, {
       img: el.charImg,
       accImgs: [...el.charAcc.querySelectorAll("img")],
+      backImgs: [...el.charBack.querySelectorAll("img")],
       bg: sceneBg[state.scene] || null,
       // La mascota también sale en la foto: si es parte de la escena, es parte
       // del recuerdo. Se la pone a un lado fijo para que nunca tape la cara.

@@ -97,7 +97,14 @@
       // Peluca de diva vocaloid. Usa el A_HEAD compartido: el flequillo cae en
       // las cejas sin taparle los ojos, que es lo que importa porque las
       // expresiones viven en la capa de la niña, debajo de todo esto.
-      { id: "miku", label: "Diva", preview: "🎤", love: 60, img: "assets/art/head-miku.png", anchor: A_HEAD },
+      // Única pieza con DOS imágenes: el pelo de atrás va debajo de la niña y
+      // el de adelante encima (ver `imgBack` en applyCosmetics, js/game.js).
+      // El frente va 3 puntos más abajo que el fondo para que el flequillo caiga
+      // sobre el de ella; el fondo se queda en A_HEAD porque de ahí sale el
+      // volumen y las coletas.
+      { id: "miku", label: "Diva", preview: "🎤", love: 60, img: "assets/art/head-miku.png",
+        anchor: { top: 3, left: 22.2, width: 56 },
+        imgBack: "assets/art/head-miku-back.png", anchorBack: A_HEAD },
     ],
     // Los cuerpos de animal están costeados JUSTO por encima de su capucha
     // (gato 20→30, conejo 35→45, dino 50→55) para que el disfraz se complete
