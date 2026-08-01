@@ -67,6 +67,13 @@
   const A_HEAD = { top: 0, left: 22.2, width: 56 };
   const A_BODY = { top: 33, left: 12, width: 76 };
   const A_HAT = { top: -19, left: 33, width: 36 };
+  // Los gorros NO pueden compartir un solo anchor: a diferencia de cabezas y
+  // cuerpos, que el prompt obliga a copiar el encuadre de su referencia, cada
+  // gorro tiene su propia forma. El de fiesta ocupa el 94% de alto de su cuadro
+  // y una corona apenas el 46%, así que con el anchor del cono la corona salía
+  // chiquita y flotando arriba de la cabeza. Este se calculó para que el borde
+  // inferior caiga donde apoya el de fiesta (15.9% del stage).
+  const A_CORONA = { top: -8, left: 31.8, width: 39 };
   // Calibrado con tools/preview.py contra necklace-corazon.png: la cadena queda
   // justo bajo el borde de la capucha y el dije sobre la panza blanca.
   const A_NECK = { top: 40, left: 34, width: 32 };
@@ -100,7 +107,7 @@
       { id: "none", label: "Ninguno", preview: "🚫" },
       { id: "party", label: "Fiesta", preview: "🎉", love: 15, img: "assets/art/hat-party.png", anchor: A_HAT },
       { id: "gorro", label: "Gorrito", preview: "🧶", love: 30, img: "assets/art/hat-gorro.png", anchor: A_HAT },
-      { id: "corona", label: "Corona", preview: "👑", love: 45, img: "assets/art/hat-corona.png", anchor: A_HAT },
+      { id: "corona", label: "Corona", preview: "👑", love: 45, img: "assets/art/hat-corona.png", anchor: A_CORONA },
       { id: "flor", label: "Florcita", preview: "🌸", love: 60, img: "assets/art/hat-flor.png", anchor: A_HAT },
     ],
     accessory: [

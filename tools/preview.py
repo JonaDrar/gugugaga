@@ -33,6 +33,8 @@ LAYER_ORDER = ["body", "head", "accessory", "hat"]  # back -> front
 A_HEAD = {"top": 0, "left": 22.2, "width": 56}
 A_BODY = {"top": 33, "left": 12, "width": 76}
 A_HAT = {"top": -19, "left": 33, "width": 36}
+# Cada gorro tiene su forma: ver el comentario en js/cosmetics.js.
+A_CORONA = {"top": -8, "left": 31.8, "width": 39}
 A_NECK = {"top": 40, "left": 34, "width": 32}  # calibrado con necklace-corazon
 
 CATALOG = {
@@ -60,7 +62,7 @@ CATALOG = {
     "hat": {
         "party": ("hat-party.png", A_HAT),
         "gorro": ("hat-gorro.png", A_HAT),
-        "corona": ("hat-corona.png", A_HAT),
+        "corona": ("hat-corona.png", A_CORONA),
         "flor": ("hat-flor.png", A_HAT),
     },
 }
