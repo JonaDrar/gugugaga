@@ -70,12 +70,18 @@
     if (!t || t.day === newDay) return null;
     const goals = GG.CARE_GOALS.map((g) => ({ id: g.id, label: g.label, ok: g.test(t) }));
     const earned = goals.filter((g) => g.ok).length;
-    state.stars = (state.stars || 0) + earned;
+    const before = state.stars || 0;
+    state.stars = before + earned;
     if (earned === GG.CARE_GOALS.length) state.streak = (state.streak || 0) + 1;
     else state.streak = 0;
     state.bestStreak = Math.max(state.bestStreak || 0, state.streak);
     state.today = GG.newToday(newDay);
-    return { earned, goals, total: GG.CARE_GOALS.length, stars: state.stars, streak: state.streak };
+    return {
+      earned, goals, total: GG.CARE_GOALS.length, stars: state.stars, streak: state.streak,
+      // Lo que estas estrellas acaban de abrir, para poder anunciarlo.
+      buddies: GG.newlyUnlockedBuddies ? GG.newlyUnlockedBuddies(before, state.stars) : [],
+      scenes: GG.SCENES ? GG.SCENES.filter((s) => s.stars > before && s.stars <= state.stars) : [],
+    };
   };
 
   // Things gated behind stars (currently the places she can visit).

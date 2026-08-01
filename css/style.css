@@ -813,6 +813,87 @@ body.night {
 }
 .toast.hidden { opacity: 0; transform: translateX(-50%) translateY(12px); pointer-events: none; }
 
+/* ---------- Mascota 🐾 ----------
+   Vive dentro de #petStage (position: relative) y se pasea cambiando `left`.
+   `bottom` la deja parada a la altura de los pies de Gugugaga: el cuadrado del
+   personaje queda centrado en un stage 200/240, así que el borde inferior del
+   arte está a ~8% del piso del stage y los pies dibujados, otro ~6% más arriba. */
+.buddy {
+  position: absolute;
+  bottom: 13%;
+  left: 78%;
+  z-index: 2;
+  transition: left 2.4s cubic-bezier(.45, 0, .25, 1);
+  cursor: pointer;
+  /* el emoji se escala con el stage para que se vea igual en iPad y en celular */
+  font-size: min(11vw, 46px);
+  line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+.buddy.hidden { display: none; }
+
+.buddy-art {
+  display: block;
+  filter: drop-shadow(0 6px 5px rgba(0, 0, 0, .18));
+  animation: buddyBob 1.9s ease-in-out infinite;
+  transform-origin: 50% 90%;
+}
+/* --flip lo pone el JS según hacia dónde camina; va dentro del keyframe porque
+   una transform suelta sería pisada por la animación. */
+@keyframes buddyBob {
+  0%, 100% { transform: scaleX(var(--flip, 1)) translateY(0); }
+  50%      { transform: scaleX(var(--flip, 1)) translateY(-10%); }
+}
+#buddy.hop .buddy-art { animation: buddyHop .45s ease 2; }
+@keyframes buddyHop {
+  0%, 100% { transform: scaleX(var(--flip, 1)) translateY(0) scale(1); }
+  40%      { transform: scaleX(var(--flip, 1)) translateY(-55%) scale(1.08); }
+}
+#buddy.wiggle .buddy-art { animation: buddyWiggle .5s ease-in-out 2; }
+@keyframes buddyWiggle {
+  0%, 100% { transform: scaleX(var(--flip, 1)) rotate(0deg); }
+  25%      { transform: scaleX(var(--flip, 1)) rotate(-12deg); }
+  75%      { transform: scaleX(var(--flip, 1)) rotate(12deg); }
+}
+#buddy.worry .buddy-art { animation: buddyWorry .7s ease-in-out 2; }
+@keyframes buddyWorry {
+  0%, 100% { transform: scaleX(var(--flip, 1)) translateY(0); opacity: 1; }
+  50%      { transform: scaleX(var(--flip, 1)) translateY(4%); opacity: .75; }
+}
+/* Duerme junto a ella: quieto, inclinado y con su propio 💤. */
+#buddy.nap { transition: left .8s ease; }
+#buddy.nap .buddy-art { animation: none; transform: scaleX(var(--flip, 1)) rotate(12deg); }
+
+.buddy-zzz {
+  position: absolute;
+  top: -70%;
+  left: 55%;
+  font-size: .55em;
+  animation: buddyBob 2.6s ease-in-out infinite;
+}
+.buddy-zzz.hidden { display: none; }
+
+/* Burbujita propia, más chica que la de Gugugaga para que se lea quién habla. */
+.buddy-speech {
+  position: absolute;
+  bottom: 108%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  padding: 5px 11px;
+  border-radius: 13px;
+  font-weight: 800;
+  font-size: 13px;
+  line-height: 1.25;
+  white-space: nowrap;
+  box-shadow: 0 4px 0 rgba(0, 0, 0, .06);
+  transition: opacity .2s ease;
+  pointer-events: none;
+}
+.buddy-speech.hidden { opacity: 0; }
+
 @media (prefers-reduced-motion: reduce) {
   #penguin, .overlay[data-overlay="zzz"], .deco { animation: none !important; }
+  .buddy-art, .buddy-zzz { animation: none !important; }
+  .buddy { transition: none; }
 }

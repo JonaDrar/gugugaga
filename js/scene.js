@@ -149,6 +149,25 @@
         safe(im, x0 + (left / 100) * S, y0 + (top / 100) * S, (w / 100) * S, (w / 100) * S);
       });
 
+      // La mascota, parada al lado de ella sobre la misma línea de piso.
+      // Los pies dibujados están al 93% del cuadrado del personaje (el arte deja
+      // aire abajo), así que ese es el "suelo" al que hay que apoyarla.
+      const buddy = charEls.buddy;
+      if (buddy) {
+        const feet = y0 + S * 0.93;
+        if (buddy.img) {
+          const bi = charEls.buddyImg;
+          if (bi && bi.complete && bi.naturalWidth) {
+            const bs = W * 0.15;
+            try { ctx.drawImage(bi, W * 0.75, feet - bs, bs, bs); } catch (e) { /* ignore */ }
+          }
+        } else {
+          const fs = W * 0.13;
+          ctx.font = fs + "px serif";
+          ctx.fillText(buddy.emoji, W * 0.82, feet - fs / 2);
+        }
+      }
+
       (stickers || []).forEach((st) => {
         ctx.font = st.size + "px serif";
         ctx.fillText(st.e, st.x * W, st.y * H);

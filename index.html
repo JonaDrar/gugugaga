@@ -49,6 +49,7 @@
       <button id="sceneBtn" class="side-btn" aria-label="Lugar">🏞️</button>
       <button id="photoBtn" class="side-btn" aria-label="Sacar foto">📸</button>
       <button id="albumBtn" class="side-btn" aria-label="Álbum de comidas">📖</button>
+      <button id="buddyBtn" class="side-btn" aria-label="Mascotas">🐾</button>
       <button id="voiceBtn" class="side-btn" aria-label="Voces">🎤</button>
       <button id="bellBtn" class="side-btn" aria-label="Avisos">🔔</button>
     </div>
@@ -72,6 +73,16 @@
           <span class="stink s1">〰</span><span class="stink s2">〰</span>
         </div>
       </div>
+
+      <!-- Mascota: se pasea sola por la escena. Vive dentro de #petStage para
+           quedar siempre a la altura de los pies de Gugugaga en cualquier
+           pantalla; puede salirse de la caja (left negativo o >100%). -->
+      <div id="buddy" class="buddy hidden">
+        <div id="buddySpeech" class="buddy-speech hidden"></div>
+        <span id="buddyZzz" class="buddy-zzz hidden">💤</span>
+        <span id="buddyArt" class="buddy-art">🐤</span>
+      </div>
+
       <div id="fx"></div>
     </div>
 
@@ -139,6 +150,18 @@
         <button class="sheet-close" data-close="scenes" aria-label="Cerrar">✕</button>
       </div>
       <div id="sceneItems" class="closet-items"></div>
+    </div>
+  </div>
+
+  <!-- ============ Mascotas ============ -->
+  <div id="buddies" class="sheet hidden">
+    <div class="sheet-panel">
+      <div class="sheet-head">
+        <h2>🐾 Sus amigos</h2>
+        <button class="sheet-close" data-close="buddies" aria-label="Cerrar">✕</button>
+      </div>
+      <p class="sheet-note">Los amigos llegan con ⭐ estrellas, por cuidarla bien todo el día.</p>
+      <div id="buddyItems" class="closet-items"></div>
     </div>
   </div>
 
@@ -232,6 +255,7 @@
 <script src="js/cosmetics.js"></script>
 <script src="js/foods.js"></script>
 <script src="js/care.js"></script>
+<script src="js/buddies.js"></script>
 <script src="js/notify.js"></script>
 <script src="js/health.js"></script>
 <script src="js/scene.js"></script>

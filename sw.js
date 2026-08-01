@@ -1,6 +1,6 @@
 // Service worker: cache the app shell so Gugugaga works offline
 // Bump CACHE whenever the shell changes — activate() drops every older cache.
-const CACHE = "gugugaga-v4";
+const CACHE = "gugugaga-v5";
 const ASSETS = [
   "./",
   "./index.html",
@@ -12,6 +12,7 @@ const ASSETS = [
   "./js/cosmetics.js",
   "./js/foods.js",
   "./js/care.js",
+  "./js/buddies.js",
   "./js/notify.js",
   "./js/health.js",
   "./js/minigames.js",
@@ -20,6 +21,9 @@ const ASSETS = [
   "./js/game.js",
   "./manifest.webmanifest",
   "./assets/icons/favicon.svg",
+  "./assets/icons/icon-192.png",
+  "./assets/icons/icon-512.png",
+  "./assets/icons/icon-180.png",
 ];
 
 self.addEventListener("install", (e) => {

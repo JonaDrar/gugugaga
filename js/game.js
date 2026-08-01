@@ -34,6 +34,13 @@
     scenes: $("scenes"),
     sceneBtn: $("sceneBtn"),
     sceneItems: $("sceneItems"),
+    buddy: $("buddy"),
+    buddyArt: $("buddyArt"),
+    buddyZzz: $("buddyZzz"),
+    buddySpeech: $("buddySpeech"),
+    buddyBtn: $("buddyBtn"),
+    buddies: $("buddies"),
+    buddyItems: $("buddyItems"),
     photo: $("photo"),
     photoBtn: $("photoBtn"),
     photoCanvas: $("photoCanvas"),
@@ -178,6 +185,8 @@
     el.actions.classList.toggle("sick", !!ill);
     el.sickBadge.classList.toggle("hidden", !ill);
     if (ill) el.sickBadge.textContent = ill.emoji;
+
+    Buddy.watch();
   }
 
   // ---------- speech + fx + toast ----------
@@ -219,6 +228,11 @@
     else if (ev.mood === "sad" || ev.shake) GG.Audio.play("cry");
     else GG.Audio.play(name); // feed / play / clean / pet
   }
+  // Qué comenta la mascota según la acción. `pet` queda afuera a propósito:
+  // acariciarla es el gesto más repetido del juego y el amigo hablando en cada
+  // toque se vuelve ruido.
+  const BUDDY_REACTS = { feed: "feed", play: "play", clean: "clean", sleep: "sleep" };
+
   function handle(name, opts) {
     const ev = GG.doAction(state, name, opts);
     if (!ev) return;
@@ -243,6 +257,9 @@
       setTimeout(() => toast("📖 ¡Comida nueva! " + p.done + " de " + p.total), 900);
     }
     if (ev.health) applyHealthEvent(ev.health, 1800);
+    // La mascota comenta lo que acaba de pasar, un toque después que ella para
+    // que se lean como dos personajes y no como un solo cartel.
+    if (BUDDY_REACTS[name]) setTimeout(() => Buddy.react(BUDDY_REACTS[name]), 900);
     GG.Save.save(state);
     render();
     nextIdleChatter = Date.now() + 8000;
@@ -408,6 +425,171 @@
   }
   el.albumBtn.addEventListener("click", openAlbum);
 
+  // ---------- mascota 🐾 ----------
+  // Se pasea sola, reacciona a lo que pasa y se deja acariciar. No tiene barras
+  // (ver js/buddies.js): existir y responder es todo lo que tiene que hacer.
+  const Buddy = (() => {
+    let animTimer = null;
+    let speechTimer = null;
+    let walkTimer = null;
+    let lastX = 78;
+
+    // Se pasea a los costados dejando libre el centro (30–70%), que es donde
+    // está parada Gugugaga: si le camina por encima tapa la cara.
+    function pickX() {
+      const left = Math.random() < 0.5;
+      return left ? -18 + Math.random() * 42 : 76 + Math.random() * 40;
+    }
+
+    function place(x) {
+      el.buddyArt.style.setProperty("--flip", x < lastX ? -1 : 1);
+      lastX = x;
+      el.buddy.style.left = x + "%";
+    }
+
+    function anim(name) {
+      clearTimeout(animTimer);
+      el.buddy.classList.remove("hop", "wiggle", "worry");
+      if (!name || name === "nap") return;
+      void el.buddy.offsetWidth; // reinicia la animación
+      el.buddy.classList.add(name);
+      animTimer = setTimeout(() => el.buddy.classList.remove(name), 1400);
+    }
+
+    function say(text) {
+      el.buddySpeech.textContent = text;
+      el.buddySpeech.classList.remove("hidden");
+      clearTimeout(speechTimer);
+      speechTimer = setTimeout(() => el.buddySpeech.classList.add("hidden"), 2400);
+    }
+
+    // Emojis que flotan sobre la mascota, no sobre Gugugaga.
+    function fx(list) {
+      if (!list) return;
+      list.forEach((e, i) =>
+        setTimeout(() => {
+          const s = document.createElement("span");
+          s.className = "float-emoji";
+          s.textContent = e;
+          s.style.left = "0%";
+          s.style.top = "-40%";
+          s.style.fontSize = "20px";
+          el.buddy.appendChild(s);
+          setTimeout(() => s.remove(), 1300);
+        }, i * 150)
+      );
+    }
+
+    function render() {
+      const b = GG.activeBuddy(state);
+      el.buddy.classList.toggle("hidden", !b);
+      if (!b) return;
+      // `img` es opcional: hoy todas son emoji, pero si algún día hay PNG entra
+      // solo, sin tocar el resto del juego.
+      if (b.img) {
+        el.buddyArt.innerHTML = '<img src="' + b.img + '" alt="" class="buddy-img" />';
+      } else if (el.buddyArt.textContent !== b.emoji) {
+        el.buddyArt.textContent = b.emoji;
+      }
+      const resting = GG.buddyResting(state);
+      el.buddy.classList.toggle("nap", resting);
+      el.buddyZzz.classList.toggle("hidden", !resting);
+      if (resting) {
+        el.buddySpeech.classList.add("hidden");
+        place(66); // se acurruca al lado de ella
+      }
+    }
+
+    // Reacción a algo que acaba de pasar. Mientras duerme no reacciona a nada
+    // salvo a que la despierten.
+    function react(kind) {
+      const r = GG.buddyReact(state, kind);
+      if (!r) return;
+      if (GG.buddyResting(state) && kind !== "sleep") return;
+      anim(r.anim);
+      fx(r.fx);
+      if (r.speech) say(r.speech);
+    }
+
+    function walk() {
+      clearTimeout(walkTimer);
+      const delay = 3500 + Math.random() * 4500;
+      walkTimer = setTimeout(() => {
+        if (!GG.activeBuddy(state)) return walk();
+        if (!GG.buddyResting(state) && !document.hidden) {
+          place(pickX());
+          if (Math.random() < 0.35) react("idle");
+        }
+        walk();
+      }, delay);
+    }
+
+    el.buddy.addEventListener("click", (e) => {
+      e.stopPropagation(); // no cuenta como caricia a Gugugaga
+      const b = GG.activeBuddy(state);
+      if (!b) return;
+      if (GG.buddyResting(state)) {
+        say("shhh... 💤");
+        return;
+      }
+      react("tap");
+      // Un amiguito contento también la alegra a ella, pero poquito: la mascota
+      // es compañía, no un atajo para llenar la barra de felicidad.
+      state.stats.happiness = GG.clamp(state.stats.happiness + 1);
+      GG.Save.save(state);
+    });
+
+    // Reacciones que nacen de un ESTADO, no de un botón: sólo deben dispararse
+    // en el flanco (cuando la cosa empieza), si no el amigo hablaría cada
+    // segundo mientras ella siga enferma o sucia.
+    let wasSick = false;
+    let wasDirty = false;
+    function watch() {
+      render();
+      const sick = !!GG.illnessOf(state);
+      const dirty = !state.sleeping && state.stats.cleanliness < 35;
+      if (sick && !wasSick) react("sick");
+      else if (dirty && !wasDirty) react("dirty");
+      wasSick = sick;
+      wasDirty = dirty;
+    }
+
+    walk();
+    return { render, react, walk, watch };
+  })();
+
+  // ---------- mascotas: elegir ----------
+  function openBuddies() {
+    el.buddyItems.innerHTML = "";
+    const items = [{ id: null, label: "Ninguno", preview: "🚫", stars: 0, none: true }].concat(GG.BUDDIES);
+    items.forEach((b) => {
+      const unlocked = b.none || GG.buddyUnlocked(state, b);
+      const sel = state.buddy === (b.none ? null : b.id);
+      const btn = document.createElement("button");
+      btn.className = "citem" + (sel ? " sel" : "") + (unlocked ? "" : " locked");
+      btn.innerHTML =
+        '<span class="cico">' + (unlocked ? (b.none ? b.preview : b.emoji) : "🔒") + "</span>" +
+        '<span class="cname">' + (unlocked ? b.label : b.stars + " ⭐") + "</span>";
+      btn.addEventListener("click", () => {
+        if (!unlocked) {
+          toast("🔒 " + b.label + " llega con " + b.stars + " ⭐. ¡Cuidala bien todo el día!", 4600);
+          return;
+        }
+        state.buddy = b.none ? null : b.id;
+        GG.Save.save(state);
+        Buddy.render();
+        if (!b.none) {
+          Buddy.react("tap");
+          GG.Audio.play("pet");
+        }
+        openBuddies();
+      });
+      el.buddyItems.appendChild(btn);
+    });
+    openSheet(el.buddies);
+  }
+  el.buddyBtn.addEventListener("click", openBuddies);
+
   // ---------- scenes ----------
   function openScenes() {
     el.sceneItems.innerHTML = "";
@@ -453,6 +635,9 @@
       img: el.charImg,
       accImgs: [...el.charAcc.querySelectorAll("img")],
       bg: sceneBg[state.scene] || null,
+      // La mascota también sale en la foto: si es parte de la escena, es parte
+      // del recuerdo. Se la pone a un lado fijo para que nunca tape la cara.
+      buddy: GG.activeBuddy(state),
     }, stamped);
   }
 
@@ -623,7 +808,17 @@
     } else {
       toast("Ayer fue difícil… ¡hoy es un día nuevo! 💪", 4600);
     }
-    if (res.streak >= 2) setTimeout(() => toast("🔥 ¡" + res.streak + " días seguidos perfectos!", 4200), 5400);
+    // Los avisos se encolan uno detrás de otro: dos toasts encimados se pisan y
+    // el premio se pierde justo cuando más importa que lo vea.
+    let at = 5400;
+    const queue = (msg, ms) => { setTimeout(() => toast(msg, ms), at); at += ms + 300; };
+    (res.buddies || []).forEach((b) => {
+      queue("🐾 ¡Llegó un amigo nuevo! " + b.emoji + " " + b.label + " — tocá 🐾 para elegirlo", 5200);
+    });
+    (res.scenes || []).forEach((sc) => {
+      queue("🗺️ ¡Se abrió un lugar nuevo! " + sc.preview + " " + sc.label, 4800);
+    });
+    if (res.streak >= 2) queue("🔥 ¡" + res.streak + " días seguidos perfectos!", 4200);
     return done;
   }
 

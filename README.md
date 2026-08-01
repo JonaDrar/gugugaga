@@ -28,6 +28,8 @@ hija del dueño; no comercial).
 - **Personaje por capas (dress-up)**: niña base + cuerpo + capucha + gorro, todo
   intercambiable y **combinable** (ver *Arquitectura*).
 - **Escenarios** intercambiables (cielo, cuarto, playa, jardín) hechos solo con CSS.
+- **Mascotas** 🐾: un amigo que se pasea por la escena y reacciona a todo. Sin
+  barras propias — es compañía, no otra obligación. Se ganan con ⭐.
 - **Modo foto** 📸: postal tipo polaroid con stickers, guardada en un álbum local.
 - **Voces grabadas** 🎤: la nena graba su propia voz para cada emoción.
 - **Sonidos** sintetizados (WebAudio, sin archivos) + botón de silencio.
@@ -73,19 +75,23 @@ gugugaga/
 │   ├── voice.js          # grabar/reproducir la voz real (MediaRecorder)
 │   ├── cosmetics.js      # CATÁLOGO de piezas + expresiones + anchors  ← se edita seguido
 │   ├── foods.js          # CATÁLOGO de comidas, gustos y si son sanas ← se edita seguido
+│   ├── care.js           # ⭐ estrellas: objetivos del día y cierre a medianoche
+│   ├── buddies.js        # CATÁLOGO de mascotas + sus frases y reacciones ← se edita seguido
+│   ├── notify.js         # avisos locales
 │   ├── health.js         # enfermarse, doctor y mensajes educativos
 │   ├── minigames.js      # burbujas / Simón dice / memotest / globos
 │   ├── scene.js          # escenarios (CSS) + render de la foto (canvas)
 │   ├── pet.js            # estado, decaimiento, cariño, acciones
 │   └── game.js           # loop, render por capas, input, todas las pantallas
 ├── manifest.webmanifest  # PWA
-├── sw.js                 # service worker (cache offline)
+├── sw.js                 # service worker (cache offline) ← subir CACHE al cambiar el shell
 ├── assets/
 │   ├── art/              # PNGs del personaje y piezas (1254×1254, transparentes)
-│   └── icons/            # favicon.svg (íconos PWA pendientes)
+│   └── icons/            # favicon.svg + íconos PWA generados
 ├── build.py              # inlinea css+js y EMBEBE las imágenes → 1 archivo para el link
 └── tools/
     ├── preview.py        # compositor que replica EXACTO el juego (para calibrar anchors)
+    ├── make_icons.py     # genera los íconos PWA desde las mismas capas del juego
     └── clean_green.py    # quita fondo verde de piezas generadas por IA
 ```
 
@@ -204,7 +210,7 @@ Son a propósito opuestas, y esa es toda la gracia:
 | cómo se gana | cada acción | al cerrar el día |
 | ritmo | inmediato | 1 vez por día |
 | ¿se puede farmear? | sí, a propósito | **no** |
-| desbloquea | ropa del clóset | lugares (escenarios) |
+| desbloquea | ropa del clóset | lugares (escenarios) y **mascotas** |
 
 El cariño existe para dar recompensa en los primeros 30 segundos. Las estrellas
 (`js/care.js`) miden **constancia**: los objetivos son cosas que *no* pasaron
@@ -216,6 +222,51 @@ qué le falta — funciona como un cuadro de tareas, que es justo el hábito bus
 
 También hay `GG.PET_LOVE_COOLDOWN`: los mimos dan ❤️ como mucho cada 45 s. Sin
 eso, dejar el dedo apoyado desbloqueaba todo el vestuario en un minuto.
+
+### Mascotas 🐾 (`js/buddies.js`)
+
+Un amigo que vive en la escena junto a Gugugaga: se pasea solo, comenta lo que
+va pasando y se deja acariciar. Botón 🐾 en la barra lateral.
+
+> El archivo se llama `buddies.js` y **no** `pets.js` porque `js/pet.js` ya es el
+> motor de estado de Gugugaga misma.
+
+**No tiene barras propias, y es la decisión de diseño central.** Darle hambre,
+sueño y limpieza duplicaría la tarea diaria: una nena de seis años que ya cuida
+cuatro barras no necesita ocho, y la segunda mascota se convertiría en culpa en
+vez de compañía. Nunca se enferma, nunca reclama, no se puede perder.
+
+**Se desbloquean con ⭐, no con ❤️**, y eso también es a propósito: un amigo nuevo
+es exactamente el premio que corresponde a la constancia, no al toqueteo. Los
+costos se **intercalan** con los de las escenas (2/5/9 ⭐) para que siempre haya
+algo próximo por abrir:
+
+| mascota | ⭐ |
+|---|---|
+| 🐤 Pollito | 0 — viene incluido, nunca está sola |
+| 🐱 Gatito | 3 |
+| 🐶 Perrito | 7 |
+| 🦕 Dino | 12 |
+
+**Reacciona a lo que pasa**, con frases propias por mascota (`lines` en el
+catálogo): comer, jugar, bañarse, dormir, que se enferme, que esté sucia, y que
+la toquen. Las reacciones de *estado* (enferma / sucia) se disparan **sólo en el
+flanco** — si no, el amigo hablaría una vez por segundo mientras dure. Mientras
+Gugugaga duerme, la mascota también duerme (`GG.buddyResting`): la escena de
+noche queda quieta y se entiende que es hora de parar.
+
+Tocar la mascota suma **+1 de felicidad y nada de ❤️**: es compañía, no un atajo
+para llenar barras. El `stopPropagation` evita que ese toque cuente además como
+caricia a Gugugaga.
+
+También **sale en las fotos**, apoyada sobre la misma línea de piso que ella.
+
+**Arte:** hoy cada mascota es un emoji, así que funciona sin generar nada. Cada
+entrada acepta un `img` opcional (igual que las expresiones): si algún día existe
+el PNG se agrega ahí y el juego lo usa en vez del emoji, sin tocar más código.
+
+**Agregar una mascota:** una entrada nueva en `GG.BUDDIES` con `id`, `label`,
+`emoji`, `stars` y `lines`. No hay que tocar nada más.
 
 ### Bloqueos de cuidado
 - **No puede dormir sucia** (limpieza < `GG.DIRTY_SLEEP`): primero el baño.
@@ -385,8 +436,8 @@ for f in js/*.js; do node --check "$f"; done
 **Ideas futuras pedidas por el dueño:**
 - [ ] **Collares** 📿 — van al slot `accessory` (ya existe y está vacío), con su
       anchor sobre el pecho/cuello. Prompts en `tools/art-prompts.md`.
-- [ ] **Mascotas** 🐾 — compañero decorativo y reactivo en la escena, **sin barra
-      propia** (darle necesidades duplicaría la tarea diaria).
+- [x] **Mascotas** 🐾 ✅ (2026-07-31) — `js/buddies.js`, ver *Mascotas*. Pendiente
+      opcional: reemplazar los emoji por PNG (campo `img`, ya soportado).
 - [x] Grabaciones reales de voz ✅ (2026-07-28) — ver *Voces*.
 - [x] **Hosting estático propio** ✅ (2026-07-31) — GitHub Pages en
       https://jonadrar.github.io/gugugaga/ ; habilita micrófono y notificaciones.

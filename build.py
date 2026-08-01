@@ -55,6 +55,7 @@ JS_ORDER = [
     "js/cosmetics.js",
     "js/foods.js",
     "js/care.js",
+    "js/buddies.js",
     "js/notify.js",
     "js/health.js",
     "js/scene.js",
